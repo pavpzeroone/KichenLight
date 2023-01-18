@@ -59,6 +59,8 @@ extern "C" {
 #define vLightSens_Night						2000	//Напряжение на датчике освещения ниже которого наступет ночь
 #define vLightSens_Day							2300	//Напряжение на датчике освещения выше которого наступет день
 
+#define Lux_Data_Period							600000	//Время между занесениями в массив данных значения освещенности (600 000 = 10 мин)
+
 //extern Uart_struct	Uart;
 
 typedef struct
@@ -153,6 +155,7 @@ uint32_t Led_Prog_Exec(char i);
 uint32_t GetDelayAndPowerON(void);
 void Set_Led_Bright(char Led_Number, int bright);
 void StatusLedRefresh(int bright);
+void LightHandler(uint16_t Lux);
 void TimingDelay_Decrement(void);
 /* USER CODE END EFP */
 

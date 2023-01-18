@@ -30,7 +30,7 @@ const uint8_t	chr_0D = 0x0D;
 
 volatile Command_struct Command;	//Команда с параметрами
 
-unsigned int	Comm_Task;				//Набор битов-флагов исполнения задачь
+unsigned int	Comm_Task;				  //Набор битов-флагов исполнения задачь
 
 //Переменные используемые в main
 char BEAN_Code[15];	//Переменная для отправки кода BEAN

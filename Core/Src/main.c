@@ -61,7 +61,8 @@ DMA_HandleTypeDef hdma_usart3_tx;
 UART_HandleTypeDef *const Used_uart = &huart3;		//Выбор используемого UARTa
 
 volatile uint32_t		ADC_Delay = 1000,
-										Charger_Delay;
+										Charger_Delay,
+										LuxIntegry_Period = Lux_Data_Period;
 uint16_t	Vbat[4] = { vBat_Norm, vBat_Norm, vBat_Norm, 0 },
 					Vlsens[3];
 					
@@ -306,6 +307,9 @@ int main(void)
 			Vlsens[1] = Vlsens[2];
 			Vlsens[2] = 0;
 			
+			LightHandler(Vlsens[0]);			//Обработчик значений освещенности
+			
+			//Обработчик смены режина работы День/Ночь
 			if(( Vlsens[0] < vLightSens_Night ) && ( Mode == 1 ))
 			{
 				Mode = 2;
@@ -834,6 +838,28 @@ uint32_t Led_Prog_Exec(char i)
 	return a;
 }
 
+void LightHandler(uint16_t Lux)
+{
+	static uint16_t Lux_data[500];
+	static uint16_t index = 0;
+	static uint16_t count = 0;
+	static uint16_t step = 0;
+	
+	if(LuxIntegry_Period == 0)
+	{	//Если время периода вышло переходим к следующей ячейке
+		if(++index == 500) index = 0;
+		if(++count > 500) count = 500;
+		step = 0;
+	}
+	
+	if(step == 0) Lux_data[index] = Lux;
+	else
+	{ //Заносим усредненное значение в массив
+		Lux_data[index] = (int32_t)( Lux_data[index] + Lux ) / 2;
+	}
+	step++;
+}
+
 //uint32_t GetDelayAndPowerON(void)
 //{ if(Power.Status == 0)
 //	{	Power.Status = 1;
@@ -894,6 +920,7 @@ void TimingDelay_Decrement(void)
 	if( ADC_Delay ) ADC_Delay--;
 	if( Power.ChangeDelay ) Power.ChangeDelay--;
 	if( Charger_Delay ) Charger_Delay--;
+	if( LuxIntegry_Period ) LuxIntegry_Period--;
 	//if( Status.Preset.Delay ) Status.Preset.Delay--;
 //	
 //	if(TimingDelay_LC200_Status)TimingDelay_LC200_Status--;
