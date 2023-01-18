@@ -65,6 +65,18 @@ extern "C" {
 
 typedef struct
 {
+	volatile uint16_t Year;
+	volatile uint16_t Month;
+	volatile uint16_t Day;
+	volatile uint16_t Hour;
+	volatile uint16_t Minute;
+	volatile uint16_t Second;
+	volatile uint16_t Delay;				//Задержка до срабатывания секундного тика
+	volatile char			Tik;					//Флаг срабатывания секундного тика
+}Time_struct;
+	
+typedef struct
+{
 	volatile int			Bright;					//Текущая яркость	(0 - 1000)
 	volatile int			Target_Bright;	//Целевая яркость	(0 - 1000)
 	volatile uint32_t	Delay;					//Задержка до обработки яркости канала
@@ -156,6 +168,7 @@ uint32_t GetDelayAndPowerON(void);
 void Set_Led_Bright(char Led_Number, int bright);
 void StatusLedRefresh(int bright);
 void LightHandler(uint16_t Lux);
+void Clock_Handler(void);
 void TimingDelay_Decrement(void);
 /* USER CODE END EFP */
 

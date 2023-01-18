@@ -28,6 +28,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+Time_struct			Time;
 Led_struct 			Led;
 MovSens_struct	MovSens;
 Light_Status_struct	Light_Status;
@@ -175,6 +176,9 @@ int main(void)
 		
 		//Запуск исполнителя команд получаемых по UART
 		Command_Exec();
+		
+		//Обработчик часов
+		if( Time.Tik )Clock_Handler();
 		
 		//Обработчик изменения яркости Led
 		for(i=0;i<Led_Ch_Cnt;i++)	{ if( Led.Channel[i].Delay == 0 ) Led.Channel[i].Delay = Led_Prog_Exec(i); }
@@ -860,6 +864,32 @@ void LightHandler(uint16_t Lux)
 	step++;
 }
 
+void Clock_Handler(void)
+{
+	Time.Tik = 0;
+	if( ++Time.Second == 60 )
+	{
+		Time.Second = 0;
+		if( ++Time.Minute == 60 )
+		{
+			Time.Minute = 0;
+			if( ++Time.Hour == 24 )
+			{
+				Time.Hour = 0;
+				if( ++Time.Day == 32 )
+				{
+					Time.Day = 1;
+					if( ++Time.Month == 13 )
+					{
+						Time.Month = 1;
+						Time.Year++;
+					}
+				}
+				
+			}
+		}
+	}
+}
 //uint32_t GetDelayAndPowerON(void)
 //{ if(Power.Status == 0)
 //	{	Power.Status = 1;
@@ -921,6 +951,7 @@ void TimingDelay_Decrement(void)
 	if( Power.ChangeDelay ) Power.ChangeDelay--;
 	if( Charger_Delay ) Charger_Delay--;
 	if( LuxIntegry_Period ) LuxIntegry_Period--;
+	if( Time.Delay ) Time.Delay--; else { Time.Delay = 1000; Time.Tik = 1; }
 	//if( Status.Preset.Delay ) Status.Preset.Delay--;
 //	
 //	if(TimingDelay_LC200_Status)TimingDelay_LC200_Status--;
