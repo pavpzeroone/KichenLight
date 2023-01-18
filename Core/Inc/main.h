@@ -169,6 +169,8 @@ void Set_Led_Bright(char Led_Number, int bright);
 void StatusLedRefresh(int bright);
 void LightHandler(uint16_t Lux);
 void Clock_Handler(void);
+int16_t getNumberOfDayInMonth(uint16_t month, uint16_t year);
+char isLeapYear(uint16_t year);
 void TimingDelay_Decrement(void);
 /* USER CODE END EFP */
 

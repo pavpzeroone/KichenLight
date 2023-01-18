@@ -103,6 +103,10 @@ int main(void)
 	char	ADC_Step = 0;
 	char	MoveSensL = 0, MoveSensL_ = 0,	//Данные с датчиков текущие и предыдущие
 				MoveSensR = 0, MoveSensR_ = 0;
+	
+	Time.Year = 2023;
+	Time.Month = 1;
+	Time.Day = 18;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -876,7 +880,7 @@ void Clock_Handler(void)
 			if( ++Time.Hour == 24 )
 			{
 				Time.Hour = 0;
-				if( ++Time.Day == 32 )
+				if( ++Time.Day == getNumberOfDayInMonth(Time.Month, Time.Year)+1 )
 				{
 					Time.Day = 1;
 					if( ++Time.Month == 13 )
@@ -889,6 +893,24 @@ void Clock_Handler(void)
 			}
 		}
 	}
+}
+
+//Подсчет количества дней в месяце
+int16_t getNumberOfDayInMonth(uint16_t month, uint16_t year)
+{
+	uint16_t daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+	uint16_t days = daysInMonth[month-1];
+	if( ( month == 2 ) && (isLeapYear(year) == 1 ) ) days++;
+	return days;
+}
+
+//Проверка года на високосность
+char isLeapYear(uint16_t year)
+{
+	if (year % 400 == 0) return 1;
+	if (year % 100 == 0) return 0;
+	if (year % 4 == 0) return 1;
+	return 0;
 }
 //uint32_t GetDelayAndPowerON(void)
 //{ if(Power.Status == 0)
