@@ -16,7 +16,7 @@ const uint8_t	Key_List[]="_0_1_DISABLE_ENABLE_OFF_ON_";
 const uint16_t	Key_List_Len = sizeof Key_List;
 
 //Список Hex зачений
-const uint8_t	Hex_List[]="_ _0_1_2_3_4_5_6_7_8_9_A_B_C_D_E_F_._";
+const uint8_t	Hex_List[]="_ _0_1_2_3_4_5_6_7_8_9_A_B_C_D_E_F_._:_";
 const uint16_t	Hex_List_Len = sizeof Hex_List;
 
 //Список ответов
@@ -94,6 +94,7 @@ char Command_Write(char Number, char Key, int Value)
 			if(Value) return p_Msg;
 		break;}
 		
+		case m_TIME_SHOW:
 		case m_DS18B20_SHOW_TEMP:
 		{
 			Command.Key = 1;
@@ -263,6 +264,12 @@ void Command_Exec(void)
 				else 																					{ Relay_ON;	 Send_Ansver_from_List(m_RELAY, a_ON);	}
 			break;}//---------------------------------------------------------------			
 			
+			case m_TIME_SHOW:	//Команда вывода времени
+			{
+				Comm_Task |= t_Time_Show;													//Включаем разовый показ времени
+				break;
+			}
+			
 			case m_VBAT_SHOW:	//Команда включения / выключения вывода Vbat ----
 			{ switch( Command.Key )
 				{
@@ -379,17 +386,17 @@ void Command_Exec(void)
 				//USART_Send( &Uart.TX_Buf.Text[ 0 ], 0, Len );	
 			}
 			
-			case m_CAN_SEND:				//Отправка сообщения CAN
-			{	uint8_t Len = 0;
-				//CAN_Filter_Set(CAN_Filter_Bank.Number, CAN_Filter_Bank.Ctrl_Reg, CAN_Filter_Bank.ID, CAN_Filter_Bank.Mask);
-				
-				//Формирование ответа
-				Uart.TX_Buf.Text[ Len++ ] = 0x0D;	Uart.TX_Buf.Text[ Len++ ] = 0x0A;
-				Text_From_List( &Uart.TX_Buf.Text[ Len ] , &Len, &Answer_List[0], a_OK );
-				Uart.TX_Buf.Text[ Len++ ] = 0x0D;	Uart.TX_Buf.Text[ Len++ ] = 0x0A;
-				
-				//USART_Send( &Uart.TX_Buf.Text[ 0 ], 0, Len );	
-			}
+//			case m_CAN_SEND:				//Отправка сообщения CAN
+//			{	uint8_t Len = 0;
+//				//CAN_Filter_Set(CAN_Filter_Bank.Number, CAN_Filter_Bank.Ctrl_Reg, CAN_Filter_Bank.ID, CAN_Filter_Bank.Mask);
+//				
+//				//Формирование ответа
+//				Uart.TX_Buf.Text[ Len++ ] = 0x0D;	Uart.TX_Buf.Text[ Len++ ] = 0x0A;
+//				Text_From_List( &Uart.TX_Buf.Text[ Len ] , &Len, &Answer_List[0], a_OK );
+//				Uart.TX_Buf.Text[ Len++ ] = 0x0D;	Uart.TX_Buf.Text[ Len++ ] = 0x0A;
+//				
+//				//USART_Send( &Uart.TX_Buf.Text[ 0 ], 0, Len );	
+//			}
 			
 			case m_BEAN_SHOW:	//Команда включения / выключения вывода кодов BEAN ---
 			{ switch( Command.Key )

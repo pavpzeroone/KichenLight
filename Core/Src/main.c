@@ -183,6 +183,11 @@ int main(void)
 		
 		//Обработчик часов
 		if( Time.Tik )Clock_Handler();
+		if( Comm_Task & t_Time_Show )
+		{
+			Comm_Task &= (uint32_t) !t_Time_Show;			//Выключаем разовай вывод времени
+			UART_Send_Time(Time.Year, Time.Month, Time.Day, Time.Hour, Time.Minute, Time.Second);
+		}
 		
 		//Обработчик изменения яркости Led
 		for(i=0;i<Led_Ch_Cnt;i++)	{ if( Led.Channel[i].Delay == 0 ) Led.Channel[i].Delay = Led_Prog_Exec(i); }

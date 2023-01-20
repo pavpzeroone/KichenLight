@@ -100,6 +100,7 @@ extern unsigned int	Comm_Task;			//Переменная содержащая б�
 
 #define t_Vbat_Show						1<<9
 #define t_Vsolar_Show					1<<10
+#define t_Time_Show						1<<11
 
 void Str_From_List(const uint8_t *Str, uint8_t *Len, const uint8_t *Comm_List, char Comm_N);
 void Text_From_List( uint8_t *Text, uint8_t *Len, const uint8_t *Comm_Str, char Comm_N );
