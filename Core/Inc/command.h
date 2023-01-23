@@ -111,4 +111,5 @@ void Send_Ansver_from_List(char Msg, char Key);
 
 void Vbat_Show(uint16_t V);
 void Vsolar_Show(uint16_t V);
+void Time_Show(int16_t Year, uint16_t Month, uint16_t Day, uint16_t Hour, uint16_t Minute, uint16_t Second);
 #endif

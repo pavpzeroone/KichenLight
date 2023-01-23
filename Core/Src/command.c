@@ -670,3 +670,28 @@ void Vsolar_Show(uint16_t V)
 	UART_Send_uint16(V);
 	UART_Send_Chr(&chr_0D);UART_Send_Chr(&chr_0A);	
 }
+
+void Time_Show(int16_t Year, uint16_t Month, uint16_t Day, uint16_t Hour, uint16_t Minute, uint16_t Second)
+{
+	//Формирование ответа
+	UART_Send_Chr(&chr_0D);UART_Send_Chr(&chr_0A);
+	
+	UART_Send_uint16(Year);
+	UART_Send_Chr(&Hex_List[36]);									//.
+	if( Month < 10 ) UART_Send_Chr(&Hex_List[3]); //Ноль
+	UART_Send_uint16(Month);
+	UART_Send_Chr(&Hex_List[36]);									//.
+	if( Day < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
+	UART_Send_uint16(Day);
+	UART_Send_Chr(&Hex_List[1]);									//" "
+	if( Hour < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
+	UART_Send_uint16(Hour);
+	UART_Send_Chr(&Hex_List[38]);									//:
+	if( Minute < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
+	UART_Send_uint16(Minute);
+	UART_Send_Chr(&Hex_List[38]);									//:
+	if( Second < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
+	UART_Send_uint16(Second);
+	
+	UART_Send_Chr(&chr_0D);UART_Send_Chr(&chr_0A);
+}

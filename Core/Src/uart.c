@@ -432,22 +432,22 @@ void UART_Send_uint16(uint16_t Digit)
 												UART_Send_Chr(&Hex_List[3+2*Digit]);		//5-й последний
 }
 
-void UART_Send_Time(int16_t Year, uint16_t Month, uint16_t Day, uint16_t Hour, uint16_t Minute, uint16_t Second)
-{
-	UART_Send_uint16(Year);
-	UART_Send_Chr(&Hex_List[38]);									//:
-	if( Month < 10 ) UART_Send_Chr(&Hex_List[3]); //Ноль
-	UART_Send_uint16(Month);
-	UART_Send_Chr(&Hex_List[38]);									//:
-	if( Day < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
-	UART_Send_uint16(Day);
-	UART_Send_Chr(&Hex_List[1]);									//" "
-	if( Hour < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
-	UART_Send_uint16(Hour);
-	UART_Send_Chr(&Hex_List[36]);									//.
-	if( Minute < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
-	UART_Send_uint16(Minute);
-	UART_Send_Chr(&Hex_List[36]);									//.
-	if( Second < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
-	UART_Send_uint16(Second);
-}
+//void UART_Send_Time(int16_t Year, uint16_t Month, uint16_t Day, uint16_t Hour, uint16_t Minute, uint16_t Second)
+//{
+//	UART_Send_uint16(Year);
+//	UART_Send_Chr(&Hex_List[38]);									//:
+//	if( Month < 10 ) UART_Send_Chr(&Hex_List[3]); //Ноль
+//	UART_Send_uint16(Month);
+//	UART_Send_Chr(&Hex_List[38]);									//:
+//	if( Day < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
+//	UART_Send_uint16(Day);
+//	UART_Send_Chr(&Hex_List[1]);									//" "
+//	if( Hour < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
+//	UART_Send_uint16(Hour);
+//	UART_Send_Chr(&Hex_List[36]);									//.
+//	if( Minute < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
+//	UART_Send_uint16(Minute);
+//	UART_Send_Chr(&Hex_List[36]);									//.
+//	if( Second < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
+//	UART_Send_uint16(Second);
+//}
