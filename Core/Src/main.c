@@ -56,7 +56,6 @@ TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim4;
 
 UART_HandleTypeDef huart3;
-DMA_HandleTypeDef hdma_usart3_tx;
 
 /* USER CODE BEGIN PV */
 UART_HandleTypeDef *const Used_uart = &huart3;		//Выбор используемого UARTa
@@ -74,11 +73,10 @@ uint8_t buf=0;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_TIM2_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_CRC_Init(void);
 static void MX_ADC1_Init(void);
-static void MX_DMA_Init(void);
+static void MX_TIM2_Init(void);
 static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
@@ -127,11 +125,10 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_TIM2_Init();
   MX_TIM4_Init();
   MX_CRC_Init();
   MX_ADC1_Init();
-  MX_DMA_Init();
+  MX_TIM2_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 	HAL_ADCEx_Calibration_Start(&hadc1);
@@ -176,7 +173,7 @@ int main(void)
   {	
 		//Обработчик UART
 		//HAL_UART_RxCpltCallback(uart);
-		USART_Buf_Rx_Handler();
+		USART_Buf_Rx_Handler();					//Обработчик полученного по UART в буфер
 		UART_Tx_Handler(Used_uart);			//Обработчик отправки кольцевого буфера
 		
 		//Запуск исполнителя команд получаемых по UART
@@ -321,7 +318,7 @@ int main(void)
 			Vlsens[1] = Vlsens[2];
 			Vlsens[2] = 0;
 			
-			LightHandler(Vlsens[0]);			//Обработчик значений освещенности
+			LuxHandler(Vlsens[0]);			//Обработчик значений освещенности
 			
 			//Обработчик смены режина работы День/Ночь
 			if(( Vlsens[0] < vLightSens_Night ) && ( Mode == 1 ))
@@ -453,6 +450,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+
   /** Initializes the CPU, AHB and APB buses clocks
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
@@ -491,6 +489,7 @@ static void MX_ADC1_Init(void)
   /* USER CODE BEGIN ADC1_Init 1 */
 
   /* USER CODE END ADC1_Init 1 */
+
   /** Common config
   */
   hadc1.Instance = ADC1;
@@ -504,10 +503,11 @@ static void MX_ADC1_Init(void)
   {
     Error_Handler();
   }
+
   /** Configure Injected Channel
   */
   sConfigInjected.InjectedChannel = ADC_CHANNEL_3;
-  sConfigInjected.InjectedRank = 1;
+  sConfigInjected.InjectedRank = ADC_INJECTED_RANK_1;
   sConfigInjected.InjectedNbrOfConversion = 2;
   sConfigInjected.InjectedSamplingTime = ADC_SAMPLETIME_28CYCLES_5;
   sConfigInjected.ExternalTrigInjecConv = ADC_INJECTED_SOFTWARE_START;
@@ -518,10 +518,11 @@ static void MX_ADC1_Init(void)
   {
     Error_Handler();
   }
+
   /** Configure Injected Channel
   */
   sConfigInjected.InjectedChannel = ADC_CHANNEL_4;
-	sConfigInjected.InjectedRank = 2;
+  sConfigInjected.InjectedRank = ADC_INJECTED_RANK_2;
   if (HAL_ADCEx_InjectedConfigChannel(&hadc1, &sConfigInjected) != HAL_OK)
   {
     Error_Handler();
@@ -727,22 +728,6 @@ static void MX_USART3_UART_Init(void)
 }
 
 /**
-  * Enable DMA controller clock
-  */
-static void MX_DMA_Init(void)
-{
-
-  /* DMA controller clock enable */
-  __HAL_RCC_DMA1_CLK_ENABLE();
-
-  /* DMA interrupt init */
-  /* DMA1_Channel2_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel2_IRQn);
-
-}
-
-/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -852,7 +837,7 @@ uint32_t Led_Prog_Exec(char i)
 	return a;
 }
 
-void LightHandler(uint16_t Lux)
+void LuxHandler(uint16_t Lux)
 {
 	static uint16_t Lux_data[500];
 	static uint16_t index = 0;
@@ -1029,5 +1014,3 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

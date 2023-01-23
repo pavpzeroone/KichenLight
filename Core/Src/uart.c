@@ -71,12 +71,14 @@ void UART_Tx_Handler(UART_HandleTypeDef *huart)
 	{
 		if( Uart.TX_Buf.Read_Pos < Uart.TX_Buf.Write_Pos )
 		{
-			HAL_UART_Transmit_DMA( huart, (uint8_t*) &Uart.TX_Buf.Text[Uart.TX_Buf.Read_Pos], (Uart.TX_Buf.Write_Pos - Uart.TX_Buf.Read_Pos) );	
+			//HAL_UART_Transmit_DMA( huart, (uint8_t*) &Uart.TX_Buf.Text[Uart.TX_Buf.Read_Pos], (Uart.TX_Buf.Write_Pos - Uart.TX_Buf.Read_Pos) );	
+			HAL_UART_Transmit_IT( huart, (uint8_t*) &Uart.TX_Buf.Text[Uart.TX_Buf.Read_Pos], (Uart.TX_Buf.Write_Pos - Uart.TX_Buf.Read_Pos) );	
 			Uart.TX_Buf.Read_Pos = Uart.TX_Buf.Write_Pos;
 		}
 		else
 		{
-			HAL_UART_Transmit_DMA( huart, (uint8_t*) &Uart.TX_Buf.Text[Uart.TX_Buf.Read_Pos], (Uart.TX_Buf.Len - Uart.TX_Buf.Read_Pos) );	
+			//HAL_UART_Transmit_DMA( huart, (uint8_t*) &Uart.TX_Buf.Text[Uart.TX_Buf.Read_Pos], (Uart.TX_Buf.Len - Uart.TX_Buf.Read_Pos) );	
+			HAL_UART_Transmit_IT( huart, (uint8_t*) &Uart.TX_Buf.Text[Uart.TX_Buf.Read_Pos], (Uart.TX_Buf.Len - Uart.TX_Buf.Read_Pos) );	
 			Uart.TX_Buf.Read_Pos = 0;
 		}
 		Uart.TX_Busy = 1;
@@ -163,25 +165,6 @@ void USART_Buf_Rx_Handler(void)
 							//Увеличение USART_Command.WritePos (Увеличение USART_Command.ReadPos если WritePos залезло на ReadPos)
 							USART_Command_NextWritePos();
 */								
-								/* //В зависимости от полученного сообщения выбираем требуется ли парсинг дополнительных параметров сообщения
-								switch(Msg_List_Pos)							//Выбор режима развора ответа в зависимости от определённого ответа
-								{
-									case m_Q:
-									{//Ничего не требуется										
-									break;}
-// 										case m_CLIP:
-// 										{
-// 											Search_Mode=Msg_List_Pos;		//Режим поиска параметров
-// 											Answer_Param_Nmb=0;
-// 											Answer_Param_Skob=0;
-// 											break;
-// 										}
-										case m_V:
-										{
-											Answer_Mode=Msg_List_Pos;		//Режим поиска параметров
-										}
-										default: {}
-								}*/
 								
 							Msg_Number=0;
 							Msg_List_Pos=0;	//Обнуляем номер найденого сообщения
@@ -225,104 +208,9 @@ void USART_Buf_Rx_Handler(void)
 					case p_RawValue:	//Считывание сырых данных -------------------------------------
 					{ Search_Mode = Command_Write( 0, 0, Uart.RX_Buf.Text[ Uart.RX_Buf.Read_Pos ]);						
 					break;}	//-----------------------------------------------------------------------									
-					/*
-					case m_CLIP:							//Поиск параметров ответов
-					{
-						switch(Answer_Param_Nmb)
-						{
-							case 0:	//Ищем ковычки и телефонный номер
-							{
-								if(USART_Rx_Buf[USART_Rx_Buf_Read_Pos]==0x22)	//Если находим """ - ковычки
-									if(Answer_Param_Skob!=0x22)
-									{
-										Answer_Param_Skob=0x22;	//Кавычка открылась
-										Phone_Number_Type=0;		//Используем как счётчик символов номера
-										break;
-									}
-									else 
-									{
-										Answer_Param_Skob=0;		//Кавычка закрылась
-										Answer_Param_Nmb++;			//переходим к слудующему параметру
-										Phone_Number[Phone_Number_Type]=0x5F;	//"_" - конец ответа
-										Phone_Number_Type=0;
-										Phone_Number_Valid=0;
-										break;
-									}
-									
-								if(Answer_Param_Skob==0x22) Phone_Number[Phone_Number_Type++]=USART_Rx_Buf[USART_Rx_Buf_Read_Pos];
-									
-								break;
-							}
-							case 6: {}
-							case 1:	//Ищем запятую
-							{
-								if(USART_Rx_Buf[USART_Rx_Buf_Read_Pos]==0x2C)	Answer_Param_Nmb++;	//Если находим "," - запятую то переходим к слудующему параметру												//
-								break;
-							}
-							case 2:	//Тип номера
-							{
-								if((USART_Rx_Buf[USART_Rx_Buf_Read_Pos]>0x2F)&&(USART_Rx_Buf[USART_Rx_Buf_Read_Pos]<0x3A))	//Цифры от 0-9
-								{
-									Phone_Number_Type*=10;
-									Phone_Number_Type+=(USART_Rx_Buf[USART_Rx_Buf_Read_Pos]-0x30);
-									
-									//sprintf(DBG_Tx_Buf, "%i", Phone_Number_Type);LCDPutStr(DBG_Tx_Buf, 8, 1+3*6*Test_Var++, SMALL, BLACK, RED);
-								}
-								if(USART_Rx_Buf[USART_Rx_Buf_Read_Pos]==0x2C)	Answer_Param_Nmb++;	//Если находим "," - запятую то переходим к слудующему параметру
-								break;
-							}
-							case 3:	//Субадрес (игнорируем)
-							{
-								if(USART_Rx_Buf[USART_Rx_Buf_Read_Pos]==0x22)	//Если находим """ - ковычки
-									if(Answer_Param_Skob!=0x22) {Answer_Param_Skob=0x22;}	//Кавычка открылась									
-									else 
-									{
-										Answer_Param_Skob=0;		//Кавычка закрылась
-										Answer_Param_Nmb++;			//переходим к слудующему параметру																				
-									}
-								break;
-							}
-							case 4: //Тип субадресса (игнорируем)
-							{
-								if(USART_Rx_Buf[USART_Rx_Buf_Read_Pos]==0x2C)	Answer_Param_Nmb++;	//Если находим "," - запятую то переходим к слудующему параметру
-								break;
-							}
-							case 5:	//АльфаИД (игнорируем)
-							{
-								if(USART_Rx_Buf[USART_Rx_Buf_Read_Pos]==0x22)	//Если находим """ - ковычки
-									if(Answer_Param_Skob!=0x22) {Answer_Param_Skob=0x22;}	//Кавычка открылась									
-									else 
-									{
-										Answer_Param_Skob=0;		//Кавычка закрылась
-										Answer_Param_Nmb++;			//переходим к слудующему параметру																				
-									}
-								break;
-							}
-							
-							case 7: //Правильность номера
-							{
-								if((USART_Rx_Buf[USART_Rx_Buf_Read_Pos]>0x2F)&&(USART_Rx_Buf[USART_Rx_Buf_Read_Pos]<0x3A))	//Цифры от 0-9
-								{
-									Phone_Number_Valid*=10;
-									Phone_Number_Valid+=(USART_Rx_Buf[USART_Rx_Buf_Read_Pos]-0x30);
-									
-									//sprintf(DBG_Tx_Buf, "%i", Phone_Number_Valid);LCDPutStr(DBG_Tx_Buf, 8, 100+2*6*Test_Var++, SMALL, BLACK, RED);
-								}
-								if(USART_Rx_Buf[USART_Rx_Buf_Read_Pos]==0x2C)	Answer_Param_Nmb++;	//Если находим "," - запятую то переходим к слудующему параметру
-								break;
-							}
-							default: {}
-						}
-						break;
-					}
-					case m_V:
-					{
-						//STM32vldiscovery_LEDToggle(LED4);
-						break;
-					}*/
+
 				}
-														//===========================================================================
-				
+				//===========================================================================				
 				break;
 			}
 		}

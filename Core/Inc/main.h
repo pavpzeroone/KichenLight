@@ -167,7 +167,7 @@ uint32_t Led_Prog_Exec(char i);
 uint32_t GetDelayAndPowerON(void);
 void Set_Led_Bright(char Led_Number, int bright);
 void StatusLedRefresh(int bright);
-void LightHandler(uint16_t Lux);
+void LuxHandler(uint16_t Lux);
 void Clock_Handler(void);
 int16_t getNumberOfDayInMonth(uint16_t month, uint16_t year);
 char isLeapYear(uint16_t year);
@@ -187,6 +187,7 @@ void TimingDelay_Decrement(void);
 #define Led3_GPIO_Port GPIOB
 #define Led4_Pin GPIO_PIN_9
 #define Led4_GPIO_Port GPIOB
+
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
@@ -196,5 +197,3 @@ void TimingDelay_Decrement(void);
 #endif
 
 #endif /* __MAIN_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
