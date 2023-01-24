@@ -39,7 +39,8 @@ enum m_
 	m_VBAT_SHOW,
 	m_VSOLAR_SHOW,
 	m_TIME_SHOW,
-	m_TIME_SET
+	m_TIME_SET,
+	m_LUXDATA_SHOW
 };
 
 
@@ -55,7 +56,7 @@ enum m_
 #define m_CAN_FILTER_SET			 100
 #define m_CAN_SEND			 11
 #define m_CAN_SHOW			 12
-#define m_CAN_TEST_SIGNAL			 13
+#define m_CAN_TEST_SIGNAL			 130
 #define m_CONNECT			 14
 #define m_DS18B20_REQUEST			 15
 #define m_DS18B20_SHOW_TEMP			 16
@@ -101,6 +102,7 @@ extern unsigned int	Comm_Task;			//Переменная содержащая б�
 #define t_Vbat_Show						1<<9
 #define t_Vsolar_Show					1<<10
 #define t_Time_Show						1<<11
+#define t_LuxData_Show				1<<12
 
 void Str_From_List(const uint8_t *Str, uint8_t *Len, const uint8_t *Comm_List, char Comm_N);
 void Text_From_List( uint8_t *Text, uint8_t *Len, const uint8_t *Comm_Str, char Comm_N );
@@ -112,4 +114,5 @@ void Send_Ansver_from_List(char Msg, char Key);
 void Vbat_Show(uint16_t V);
 void Vsolar_Show(uint16_t V);
 void Time_Show(int16_t Year, uint16_t Month, uint16_t Day, uint16_t Hour, uint16_t Minute, uint16_t Second);
+uint8_t LuxData_Show(uint16_t* Lux, uint16_t len, uint16_t pos);
 #endif

@@ -32,6 +32,7 @@ Time_struct			Time;
 Led_struct 			Led;
 MovSens_struct	MovSens;
 Light_Status_struct	Light_Status;
+LuxData_struct	LuxData;
 
 char ADC_compl_flag = 0;
 //char	Power_Status = 0;				//Статус наличия питания 220В
@@ -105,6 +106,8 @@ int main(void)
 	Time.Year = 2023;
 	Time.Month = 1;
 	Time.Day = 18;
+	
+	LuxData.Pos = 0;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -178,6 +181,12 @@ int main(void)
 		
 		//Запуск исполнителя команд получаемых по UART
 		Command_Exec();
+		
+		//Обработчик вывода массива данных освещенности
+		if( Comm_Task & t_LuxData_Show )
+		{
+			if( LuxData_Show(LuxData.Data, Lux_Data_Len, LuxData.Pos) == 0 ) Comm_Task &= (uint32_t) !t_LuxData_Show;			//Выключаем разовай вывод освещенности
+		}
 		
 		//Обработчик часов
 		if( Time.Tik )Clock_Handler();

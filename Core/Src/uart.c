@@ -19,7 +19,7 @@ void UART_Rx_Start(UART_HandleTypeDef *huart)
 //Обработка окончания приёма UART (Включаем прием в селдующую ячейку буфера)
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) 
 {
-	if( ++Uart.RX_Buf.Write_Pos == Uart.RX_Buf.Len ) Uart.RX_Buf.Write_Pos = 0;
+	if( ++Uart.RX_Buf.Write_Pos == RX_Buf_Len ) Uart.RX_Buf.Write_Pos = 0;
 	HAL_UART_Receive_IT ( huart, &Uart.RX_Buf.Text[Uart.RX_Buf.Write_Pos], 1); // запуск приема UART
 	
 /*  if(huart == Used_uart) {
@@ -78,29 +78,44 @@ void UART_Tx_Handler(UART_HandleTypeDef *huart)
 		else
 		{
 			//HAL_UART_Transmit_DMA( huart, (uint8_t*) &Uart.TX_Buf.Text[Uart.TX_Buf.Read_Pos], (Uart.TX_Buf.Len - Uart.TX_Buf.Read_Pos) );	
-			HAL_UART_Transmit_IT( huart, (uint8_t*) &Uart.TX_Buf.Text[Uart.TX_Buf.Read_Pos], (Uart.TX_Buf.Len - Uart.TX_Buf.Read_Pos) );	
+			HAL_UART_Transmit_IT( huart, (uint8_t*) &Uart.TX_Buf.Text[Uart.TX_Buf.Read_Pos], (TX_Buf_Len - Uart.TX_Buf.Read_Pos) );	
 			Uart.TX_Buf.Read_Pos = 0;
 		}
 		Uart.TX_Busy = 1;
 	}
 }
 
-//Отправка одного символа в буфер передачи UART
+//Отправка одного символа в буфер передачи UART (Возврщает 1 при переполнении буфера)
 uint8_t UART_Send_Chr(const uint8_t *Chr)
 {
 	Uart.TX_Buf.Text[Uart.TX_Buf.Write_Pos++] = *Chr;
-	if( Uart.TX_Buf.Write_Pos == Uart.TX_Buf.Len ) Uart.TX_Buf.Write_Pos = 0;
+	if( Uart.TX_Buf.Write_Pos == TX_Buf_Len ) Uart.TX_Buf.Write_Pos = 0;
 	if( Uart.TX_Buf.Write_Pos == Uart.TX_Buf.Read_Pos ) return 1;								//Возвращаем флаг переполнения буфера
 	return 0;																																		//Возвращаем флаг нормального завершения
 }
 
-//Отправка строки из символов, длинною в Size в буфер передачи UART
+//Отправка строки из символов, длинною в Size в буфер передачи UART (Возврщает 1 при переполнении буфера)
 uint8_t	UART_Send_Str(const uint8_t *Str, uint8_t Size)
 {
 	for(uint8_t i=1;Size;i++)
 	{
-		if(UART_Send_Chr(Str++)==1)return 1;
+		if(UART_Send_Chr(Str++)==1)return 1;	//Возвращаем флаг переполнения буфера
 	}
+	return 0;
+}
+
+//Отправка в UART 5х-значного числа uint16_t (Возврщает 1 при переполнении буфера)
+uint8_t UART_Send_uint16(uint16_t Digit)
+{	uint8_t d0 = (uint16_t) Digit/10000; Digit -= d0*10000;
+	uint8_t d1 = (uint16_t) Digit/1000;	Digit -= d1*1000;
+	uint8_t d2 = (uint16_t) Digit/100;	Digit -= d2*100;
+	uint8_t d3 = (uint16_t) Digit/10;	Digit -= d3*10;
+	
+	if(d0)							{	if( UART_Send_Chr(&Hex_List[3+2*d0]) )return 1;	}			//1-й разряд
+	if(d0||d1) 					{	if( UART_Send_Chr(&Hex_List[3+2*d1]) )return 1;	}			//2-й
+	if(d0||d1||d2) 			{	if( UART_Send_Chr(&Hex_List[3+2*d2]) )return 1;	}			//3-й
+	if(d0||d1||d2||d3) 	{	if( UART_Send_Chr(&Hex_List[3+2*d3]) )return 1;	}			//4-й
+												if( UART_Send_Chr(&Hex_List[3+2*Digit]) )return 1;		//5-й последний
 	return 0;
 }
 
@@ -214,7 +229,7 @@ void USART_Buf_Rx_Handler(void)
 				break;
 			}
 		}
-		if( ++Uart.RX_Buf.Read_Pos == Uart.RX_Buf.Len ) Uart.RX_Buf.Read_Pos = 0;	//Переходим к следующему принятому символу
+		if( ++Uart.RX_Buf.Read_Pos == RX_Buf_Len ) Uart.RX_Buf.Read_Pos = 0;	//Переходим к следующему принятому символу
 	}
 }//_.-=-.___.-=-.___.-=-.___.-=-.___.-=-.___.-=-.___.-=-.___.-=-.___.-=-.___.-=-.___.-=-.___.-=-.___.-=-.__
 
@@ -306,36 +321,3 @@ Begin:
 	return r_Srch_Null;
 }//==================================================================================================
 
-//Отправка в UART числа uint16_t
-void UART_Send_uint16(uint16_t Digit)
-{	uint8_t d0 = (uint16_t) Digit/10000; Digit -= d0*10000;
-	uint8_t d1 = (uint16_t) Digit/1000;	Digit -= d1*1000;
-	uint8_t d2 = (uint16_t) Digit/100;	Digit -= d2*100;
-	uint8_t d3 = (uint16_t) Digit/10;	Digit -= d3*10;
-	
-	if(d0)							{	UART_Send_Chr(&Hex_List[3+2*d0]);	}			//1-й разряд
-	if(d0||d1) 					{	UART_Send_Chr(&Hex_List[3+2*d1]);	}			//2-й
-	if(d0||d1||d2) 			{	UART_Send_Chr(&Hex_List[3+2*d2]);	}			//3-й
-	if(d0||d1||d2||d3) 	{	UART_Send_Chr(&Hex_List[3+2*d3]);	}			//4-й
-												UART_Send_Chr(&Hex_List[3+2*Digit]);		//5-й последний
-}
-
-//void UART_Send_Time(int16_t Year, uint16_t Month, uint16_t Day, uint16_t Hour, uint16_t Minute, uint16_t Second)
-//{
-//	UART_Send_uint16(Year);
-//	UART_Send_Chr(&Hex_List[38]);									//:
-//	if( Month < 10 ) UART_Send_Chr(&Hex_List[3]); //Ноль
-//	UART_Send_uint16(Month);
-//	UART_Send_Chr(&Hex_List[38]);									//:
-//	if( Day < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
-//	UART_Send_uint16(Day);
-//	UART_Send_Chr(&Hex_List[1]);									//" "
-//	if( Hour < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
-//	UART_Send_uint16(Hour);
-//	UART_Send_Chr(&Hex_List[36]);									//.
-//	if( Minute < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
-//	UART_Send_uint16(Minute);
-//	UART_Send_Chr(&Hex_List[36]);									//.
-//	if( Second < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
-//	UART_Send_uint16(Second);
-//}

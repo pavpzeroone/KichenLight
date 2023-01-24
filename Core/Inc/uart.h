@@ -155,22 +155,22 @@ typedef enum
 //#define s_BEAN	1
 //#define s_CAN		2
 
-#define Text_RX_Buf_Len 	196
+#define RX_Buf_Len 	196
 typedef struct 
 {	
-	uint8_t Text[Text_RX_Buf_Len];
+	uint8_t Text[RX_Buf_Len];
 	volatile uint8_t Write_Pos;
 	volatile uint8_t Read_Pos;
-	uint8_t Len;
+	//uint8_t Len;
 }Text_RX_Buf_struct;
 
-#define Text_TX_Buf_Len 	194
+#define TX_Buf_Len 	194
 typedef struct 
 {	
-	uint8_t Text[Text_TX_Buf_Len];
+	uint8_t Text[TX_Buf_Len];
 	volatile uint8_t Write_Pos;
 	volatile uint8_t Read_Pos;
-	uint8_t Len;
+	//uint8_t Len;
 }Text_TX_Buf_struct;
 
 //Буфер приёма
@@ -192,19 +192,19 @@ void USART_BEAN_Show(char *PRI, char *MSL, char *DST_ID, char *MES_ID, char *DAT
 void USART_СAN_Show(char *IDE, uint32_t *ID, uint32_t *ExID, char *RTR, char *DLC, char *DATA );
 //void USART_DS18B20_Show(void);
 
-extern char DBG_Work_Mode;
-extern char DBG_Handler_Step;
+//extern char DBG_Work_Mode;
+//extern char DBG_Handler_Step;
 
-void USART_Setup(void);
-void USART_Send(char *data, uint8_t pos, uint8_t dLen);
-void DBG_Mode_Set(char Mode);
-void DBG_Wait_Answer(char Answer);
+//void USART_Setup(void);
+//void USART_Send(char *data, uint8_t pos, uint8_t dLen);
+//void DBG_Mode_Set(char Mode);
+//void DBG_Wait_Answer(char Answer);
 
 void USART_Buf_Rx_Handler(void);
 void UART_Tx_Handler(UART_HandleTypeDef *huart);
 uint8_t UART_Send_Chr(const uint8_t *Chr);
 uint8_t UART_Send_Str(const uint8_t *Chr, uint8_t Size);
-void UART_Send_uint16(uint16_t Digit);
+uint8_t UART_Send_uint16(uint16_t Digit);
 //void UART_Send_Time(int16_t Year, uint16_t Month, uint16_t Day, uint16_t Hour, uint16_t Minute, uint16_t Second);
 //unsigned int DBG_Handler(void);
 //void DBG_Send_Command(char Command_Number, char Param_Number);
@@ -217,7 +217,7 @@ void UART_Send_uint16(uint16_t Digit);
 //extern uint32_t DelayTime_USART;
 
 //Переменные OneWire
-extern uint8_t OW_Device_Count;
+//extern uint8_t OW_Device_Count;
 
 //Внешние данные ds18b20
 extern void DS_Text_Temp(char *Text, char Sens_Nmb);

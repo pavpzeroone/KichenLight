@@ -60,6 +60,7 @@ extern "C" {
 #define vLightSens_Day							2300	//Напряжение на датчике освещения выше которого наступет день
 
 #define Lux_Data_Period							600000	//Время между занесениями в массив данных значения освещенности (600 000 = 10 мин)
+#define Lux_Data_Len								500			//Количество элементов массива сбора освещенности
 
 //extern Uart_struct	Uart;
 
@@ -75,6 +76,12 @@ typedef struct
 	volatile char			Tik;					//Флаг срабатывания секундного тика
 }Time_struct;
 	
+typedef struct
+{
+	uint16_t 	Data[Lux_Data_Len];
+	uint16_t	Pos;									//Позиция актуального значения освещенности
+}LuxData_struct;
+
 typedef struct
 {
 	volatile int			Bright;					//Текущая яркость	(0 - 1000)

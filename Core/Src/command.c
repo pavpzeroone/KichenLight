@@ -8,7 +8,7 @@
 
 //Список команд
 //const uint8_t	Msg_List[]="_#_?_1WIRE DETECT_1WIRE SHOW COUNT_1WIRE SHOW ID_1WIRE WORK_BEAN SEND_BEAN SHOW_BEAN TEST SIGNAL_CAN FILTER SET_CAN SEND_CAN SHOW_CAN TEST SIGNAL_CONNECT_DS18B20 REQUEST_DS18B20 SHOW TEMP_HEATER1_HEATER2_HEATER3_HEATER4_LC DRL DEMO_LC DRL LED_LCD TEMP SHOW_RELAY_RESET_";
-const uint8_t	Msg_List[]="_?_RELAY_LED1_LED2_LED3_LED4_LED5_LED6_VBAT SHOW_VSOLAR SHOW_TIME SHOW_TIME SET_";
+const uint8_t	Msg_List[]="_?_RELAY_LED1_LED2_LED3_LED4_LED5_LED6_VBAT SHOW_VSOLAR SHOW_TIME SHOW_TIME SET_LUXDATA SHOW_";
 const uint16_t	Msg_List_Len = sizeof Msg_List;
 
 //Список ключей
@@ -95,6 +95,7 @@ char Command_Write(char Number, char Key, int Value)
 		break;}
 		
 		case m_TIME_SHOW:
+		case m_LUXDATA_SHOW:
 		case m_DS18B20_SHOW_TEMP:
 		{
 			Command.Key = 1;
@@ -302,7 +303,13 @@ void Command_Exec(void)
 						Send_Ansver_from_List(m_VSOLAR_SHOW, a_OFF);			//Формирование ответа
 					break;}
 				}
-			break;}			
+			break;}		
+
+			case m_LUXDATA_SHOW:	//Команда вывода накопленного массива данных
+			{
+				Comm_Task |= t_LuxData_Show;													//Включаем разовый вывода накопленного массива данных освещенности
+				break;
+			}			
 			
 			case m_CAN_SHOW:	//Команда включения / выключения вывода кодов CAN ----
 			{ switch( Command.Key )
@@ -645,19 +652,10 @@ void Vbat_Show(uint16_t V)
 	
 	//Формирование ответа
 	UART_Send_Chr(&chr_0D);UART_Send_Chr(&chr_0A);
+
 	Str_From_List(S, &Len, &Msg_List[0], m_VBAT_SHOW); UART_Send_Str(S, 5);	
 	UART_Send_uint16(V);
-/*	uint8_t d0 = (uint16_t) Vbat/10000; Vbat -= d0*10000;
-	uint8_t d1 = (uint16_t) Vbat/1000;	Vbat -= d1*1000;
-	uint8_t d2 = (uint16_t) Vbat/100;	Vbat -= d2*100;
-	uint8_t d3 = (uint16_t) Vbat/10;	Vbat -= d3*10;
-	
-	if(d0)							{	Str_From_List(S, &Len, &Hex_List[0], 2+d0); UART_Send_Chr(S);	}			//1-й разряд
-	if(d0||d1) 					{	Str_From_List(S, &Len, &Hex_List[0], 2+d1); UART_Send_Chr(S);	}			//2-й
-	if(d0||d1||d2) 			{	Str_From_List(S, &Len, &Hex_List[0], 2+d2); UART_Send_Chr(S);	}			//3-й
-	if(d0||d1||d2||d3) 	{	Str_From_List(S, &Len, &Hex_List[0], 2+d3); UART_Send_Chr(S);	}			//4-й
-												Str_From_List(S, &Len, &Hex_List[0], 2+Vbat); UART_Send_Chr(S);			//5-й последний											
-*/
+
 	UART_Send_Chr(&chr_0D);UART_Send_Chr(&chr_0A);	
 }
 
@@ -666,32 +664,52 @@ void Vsolar_Show(uint16_t V)
 	
 	//Формирование ответа
 	UART_Send_Chr(&chr_0D);UART_Send_Chr(&chr_0A);
+	
 	Str_From_List(S, &Len, &Msg_List[0], m_VSOLAR_SHOW); UART_Send_Str(S, 7);
 	UART_Send_uint16(V);
+	
 	UART_Send_Chr(&chr_0D);UART_Send_Chr(&chr_0A);	
 }
 
 void Time_Show(int16_t Year, uint16_t Month, uint16_t Day, uint16_t Hour, uint16_t Minute, uint16_t Second)
 {
-	//Формирование ответа
+	//Формирование ответа в формате YYYY.MM.DD HH:MM:SS
 	UART_Send_Chr(&chr_0D);UART_Send_Chr(&chr_0A);
 	
 	UART_Send_uint16(Year);
-	UART_Send_Chr(&Hex_List[36]);									//.
+	UART_Send_Chr(&Hex_List[35]);									//.
 	if( Month < 10 ) UART_Send_Chr(&Hex_List[3]); //Ноль
 	UART_Send_uint16(Month);
-	UART_Send_Chr(&Hex_List[36]);									//.
+	UART_Send_Chr(&Hex_List[35]);									//.
 	if( Day < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
 	UART_Send_uint16(Day);
 	UART_Send_Chr(&Hex_List[1]);									//" "
 	if( Hour < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
 	UART_Send_uint16(Hour);
-	UART_Send_Chr(&Hex_List[38]);									//:
+	UART_Send_Chr(&Hex_List[37]);									//:
 	if( Minute < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
 	UART_Send_uint16(Minute);
-	UART_Send_Chr(&Hex_List[38]);									//:
+	UART_Send_Chr(&Hex_List[37]);									//:
 	if( Second < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
 	UART_Send_uint16(Second);
 	
 	UART_Send_Chr(&chr_0D);UART_Send_Chr(&chr_0A);
+}
+
+uint8_t LuxData_Show(uint16_t* Lux, uint16_t len, uint16_t pos)
+{ static uint16_t i = UINT16_MAX;				//Текущий индекс в массиве для отправки
+	//Запуск индекса
+	if( i == UINT16_MAX ) i = pos;
+	
+	if( Uart.TX_Busy ) return 1;
+	
+	while(( Lux[i] > 0 )&&( i != UINT16_MAX ))
+	{
+		if( UART_Send_uint16( Lux[i] ) == 1 ) return 1;
+		if( UART_Send_Chr(&Hex_List[1]) == 1 )return 1;
+		if( i == 0 ) i = len-1;
+		if( i == pos ) i = UINT16_MAX;
+	}
+	//Реинициализация индекса, финализация вывода
+	i = UINT16_MAX; return 0;
 }
