@@ -282,7 +282,7 @@ void Command_Exec(void)
 					
 					case k_OFF:
 					case k_DISABLE:
-					{ Comm_Task &= (uint32_t) !t_Vbat_Show;						//Выключаем режим вывода Vbat
+					{ Comm_Task &= (uint32_t) ~t_Vbat_Show;						//Выключаем режим вывода Vbat
 						Send_Ansver_from_List(m_VBAT_SHOW, a_OFF);			//Формирование ответа
 					break;}
 				}
@@ -299,7 +299,7 @@ void Command_Exec(void)
 					
 					case k_OFF:
 					case k_DISABLE:
-					{ Comm_Task &= (uint32_t) !t_Vsolar_Show;						//Выключаем режим вывода Vbat
+					{ Comm_Task &= (uint32_t) ~t_Vsolar_Show;						//Выключаем режим вывода Vbat
 						Send_Ansver_from_List(m_VSOLAR_SHOW, a_OFF);			//Формирование ответа
 					break;}
 				}
@@ -332,7 +332,7 @@ void Command_Exec(void)
 					case k_OFF:
 					case k_DISABLE:
 					{ uint8_t Len = 0;
-						Comm_Task &= (uint32_t) !t_USART_Can_Show;	//Выключаем режим вывода CAN
+						Comm_Task &= (uint32_t) ~t_USART_Can_Show;	//Выключаем режим вывода CAN
 						
 						//Формирование ответа
 						Uart.TX_Buf.Text[ Len++ ] = 0x0D;	Uart.TX_Buf.Text[ Len++ ] = 0x0A;
@@ -367,7 +367,7 @@ void Command_Exec(void)
 					case k_OFF:
 					case k_DISABLE:
 					{	uint8_t Len = 0;
-					Comm_Task &= (uint32_t) !t_CAN_Test_Signal;	//Выключаем режим отправки тестовых сообщений CAN
+					Comm_Task &= (uint32_t) ~t_CAN_Test_Signal;	//Выключаем режим отправки тестовых сообщений CAN
 						
 						//Формирование ответа						
 						Uart.TX_Buf.Text[ Len++ ] = 0x0D;	Uart.TX_Buf.Text[ Len++ ] = 0x0A;
@@ -426,7 +426,7 @@ void Command_Exec(void)
 					case k_OFF:
 					case k_DISABLE:
 					{ uint8_t Len = 0;
-						Comm_Task &= (uint32_t) !t_BEAN_Test_Signal;	//Выключаем режим вывода BEAN
+						Comm_Task &= (uint32_t) ~t_BEAN_Test_Signal;	//Выключаем режим вывода BEAN
 						
 						//Формирование ответа
 						Uart.TX_Buf.Text[ Len++ ] = 0x0D;	Uart.TX_Buf.Text[ Len++ ] = 0x0A;

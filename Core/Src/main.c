@@ -185,14 +185,15 @@ int main(void)
 		//Обработчик вывода массива данных освещенности
 		if( Comm_Task & t_LuxData_Show )
 		{
-			if( LuxData_Show(LuxData.Data, Lux_Data_Len, LuxData.Pos) == 0 ) Comm_Task &= (uint32_t) !t_LuxData_Show;			//Выключаем разовай вывод освещенности
+			if( LuxData_Show(LuxData.Data, Lux_Data_Len, LuxData.Pos) == 0 ) Comm_Task &= (uint32_t) ~t_LuxData_Show;			//Выключаем разовай вывод освещенности
 		}
 		
 		//Обработчик часов
 		if( Time.Tik )Clock_Handler();
 		if( Comm_Task & t_Time_Show )
 		{
-			Comm_Task &= (uint32_t) !t_Time_Show;			//Выключаем разовай вывод времени
+			Comm_Task &= (uint32_t) ~t_Time_Show;			//Выключаем разовай вывод времени
+
 			Time_Show(Time.Year, Time.Month, Time.Day, Time.Hour, Time.Minute, Time.Second);
 		}
 		
@@ -315,7 +316,7 @@ int main(void)
 			
 			if( Charger_Delay == 0 )
 			{ //Выключаем режим заряда батареии
-				Power.Consumers &= (uint32_t) !pc_Battery;	//Выключаем флаг зарядка батареи
+				Power.Consumers &= (uint32_t) ~pc_Battery;	//Выключаем флаг зарядка батареи
 			}
 		} // 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	- -	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-
 		
@@ -389,7 +390,7 @@ int main(void)
 						Led.Channel[0].Target_Bright = 0;
 						Led.Channel[1].Target_Bright = 0;					
 						//Light_Status.Fartuk = 0;
-						Power.Consumers &= (uint32_t) !pc_Fartuk;	//Выключаем флаг фартук
+						Power.Consumers &= (uint32_t) ~pc_Fartuk;	//Выключаем флаг фартук
 					}
 				}
 				break;
@@ -418,7 +419,7 @@ int main(void)
 					{	//Начинаем выключение фартука
 						Led.Channel[0].Target_Bright = 0;
 						Led.Channel[1].Target_Bright = 0;											
-						Power.Consumers &= (uint32_t) !pc_Fartuk;	//Выключаем флаг фартук
+						Power.Consumers &= (uint32_t) ~pc_Fartuk;	//Выключаем флаг фартук
 					}
 				}							
 				break;
@@ -948,7 +949,7 @@ char isLeapYear(uint16_t year)
 //	{ //Если режим ВЫКЛючения и потребитель включен
 //		if( Power.Consumers & Initiator ) 
 //		{
-//			Power.Consumers &= (uint32_t) !Initiator;	//Выключаем потребителя
+//			Power.Consumers &= (uint32_t) ~Initiator;	//Выключаем потребителя
 //			if( Power.Status == 1 )
 //			{
 //				Power.LifeTime = Delay_Normal_Power_OFF;

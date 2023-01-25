@@ -134,10 +134,10 @@ typedef struct
 }Power_struct;
 
 //Биты статусов Consumers 
-#define pc_Fartuk							1<<0
-#define pc_Floor							1<<1
-#define	pc_Cabinet						1<<2
-#define pc_Battery						1<<7
+#define pc_Fartuk							0b00000001	//1<<0
+#define pc_Floor							0b00000010	//1<<1
+#define	pc_Cabinet						0b00000100	//1<<2
+#define pc_Battery						0b10000000	//1<<7
 
 
 /* USER CODE END ET */

@@ -94,15 +94,15 @@ enum m_
 #define p_RawValue 	4
 
 extern unsigned int	Comm_Task;			//Переменная содержащая биты разрешения работы задачь
-#define t_USART_Can_Show			1<<3
-#define	t_CAN_Test_Signal			1<<5
+#define t_USART_Can_Show			(uint32_t) 1<<20
+#define	t_CAN_Test_Signal			(uint32_t) 1<<29
 
-#define t_BEAN_Test_Signal		1<<8
+#define t_BEAN_Test_Signal		(uint32_t) 1<<28
 
-#define t_Vbat_Show						1<<9
-#define t_Vsolar_Show					1<<10
-#define t_Time_Show						1<<11
-#define t_LuxData_Show				1<<12
+#define t_Vbat_Show						0b10000000	//(uint32_t) 1<<3
+#define t_Vsolar_Show					0b01000000	//(uint32_t) 1<<4
+#define t_Time_Show						0b00100000	//(uint32_t) 1<<5
+#define t_LuxData_Show				0b00010000	//(uint32_t) 1<<6
 
 void Str_From_List(const uint8_t *Str, uint8_t *Len, const uint8_t *Comm_List, char Comm_N);
 void Text_From_List( uint8_t *Text, uint8_t *Len, const uint8_t *Comm_Str, char Comm_N );
