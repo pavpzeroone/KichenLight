@@ -155,8 +155,6 @@ void USART_Buf_Rx_Handler(void)
 				{	Detect_Msg = Find_0D0A_Msg;	//Найдено начало сообщения
 					
 					//Инициализация переменных задействованных в поиске команд
-					//Answer_Str_Pos=0;					
-					//Answer_Temp_Nmb=0;
 					Msg_List_Pos = 0;
 					Msg_Number = 0;	//Номер команды из списка Msg_List, временный
 					Search_Mode = 0;//Режим поиска (0 - определение команды, 1-255 - определение параметров команды)
@@ -176,11 +174,6 @@ void USART_Buf_Rx_Handler(void)
 						{
 							//Заносим номер сообщения в буфер и меняем режим поиска в зависимости от принятой команды
 							Search_Mode = Command_Write( Msg_Number,0,0 );
-/*							USART_Command.Number[USART_Command.WritePos] = Msg_List_Pos;
-							//Увеличение USART_Command.WritePos (Увеличение USART_Command.ReadPos если WritePos залезло на ReadPos)
-							USART_Command_NextWritePos();
-*/								
-								
 							Msg_Number=0;
 							Msg_List_Pos=0;	//Обнуляем номер найденого сообщения
 							Answer_Chr_Count=0;
@@ -204,7 +197,16 @@ void USART_Buf_Rx_Handler(void)
 				
 					case p_Value:	//Поиск ключа по списку Key_List-----------------------------------
 					{
-						
+						Search_Result = SearchChr_in_List( &Uart.RX_Buf.Text[ Uart.RX_Buf.Read_Pos ], &Hex_List[0], &Hex_List_Len, &Msg_Number, &Msg_List_Pos, &Answer_Chr_Count);
+						if((Search_Result == r_Srch_ChrFound) || (Search_Result == r_Srch_Complete))	//Нашли символ из списка Hex_List
+						{
+							Search_Mode = Command_Write( 0, 0, Msg_Number);
+							
+							Msg_Number=0;
+							Msg_List_Pos=0;	//Обнуляем номер найденого сообщения
+							Answer_Chr_Count=0;
+						}
+						else Search_Mode = Command_Write( 0, 0, 0); //Если символ не найден отправляем 0
 					break;}	//-----------------------------------------------------------------------		
 					
 					case p_HexValue:	//Поиск ключа по списку Hex_List-------------------------------
@@ -250,7 +252,7 @@ uint8_t SearchChr_in_List(uint8_t *Chr, const uint8_t *List, const uint16_t *Lis
 
 Begin:	
 	//Поиск совпадения с Chr первого символа из слова списка сообщений List---------------------------------
-	if( *List_Msg_Number == 0 )	//Если ещё не было начато определние команды, приступаем
+	if( *List_Msg_Number == 0 )	//Если ещё не было начато определние сообщения, приступаем
 	{	
 		Tmp = 0;											//Начальный номер слова списка сообщений List
 		*Found_Crh_Count = 0;					//Обнуляем количество совпавших с Chr символов из List на данный момент

@@ -31,6 +31,7 @@ const uint8_t	chr_0D = 0x0D;
 volatile Command_struct Command;	//Команда с параметрами
 
 unsigned int	Comm_Task;				  //Набор битов-флагов исполнения задачь
+ManualLed_struct ManualLedSw;
 
 //Переменные используемые в main
 char BEAN_Code[15];	//Переменная для отправки кода BEAN
@@ -44,14 +45,12 @@ typedef struct
 } CAN_Filter_struct;
 CAN_Filter_struct CAN_Filter_Bank;	//Переменная для установки фильтра
 
+//uint32_t Digit;				//Число собранное из данных UART
+
 //Запись в структуру Msg_Cmd ОДНОГО из значений==========================================
 char Command_Write(char Number, char Key, int Value)
 {
-// 	char Num_Key_Val;
-// 	#define Num 0
-// 	#define Key 1
-// 	#define Val 2
-	
+
 	//Запись значений----------------------------
 	if(Number) 
 	{	
@@ -92,6 +91,38 @@ char Command_Write(char Number, char Key, int Value)
 // 				}
 // 			}
 			if(Value) return p_Msg;
+		break;}
+		
+		case m_LED1:
+		case m_LED2:
+		case m_LED3:
+		case m_LED4:
+		case m_LED5:
+		case m_LED6:
+		{ 
+			static char step=0;
+			
+			if(Number) { step=1; return p_HexValue; }
+			switch(step)
+			{
+				case 0: break;
+				case 1:
+				{	//Найден " " из списка HexValue
+					if(Value == 1) { step++; ManualLedSw.Value = 0; return p_Value; }	
+					break;
+				}
+				case 2:
+				{ //Найдены "0-9" из списка HexValue
+					if(( Value>1 ) && ( Value < 12 )) 
+					{
+						ManualLedSw.Value = ManualLedSw.Value * 10;
+						ManualLedSw.Value += Value - 2; 
+						return p_Value;
+					}
+					else { step = 0; Command.Key = 1; }
+					break;
+				}
+			}
 		break;}
 		
 		case m_TIME_SHOW:
@@ -310,6 +341,48 @@ void Command_Exec(void)
 				Comm_Task |= t_LuxData_Show;													//Включаем разовый вывода накопленного массива данных освещенности
 				break;
 			}			
+			
+			case m_LED1:							
+			{ if( ManualLedSw.Value <= 1000 ) 
+					{ ManualLedSw.Led_Nbr = 1; 
+						Send_Ansver_from_List(m_LED1, a_OK); }	//Формирование ответа
+				else Send_Ansver_from_List(m_LED1, a_ERROR);	
+			break; }
+			
+			case m_LED2:							
+			{ if( ManualLedSw.Value <= 1000 ) 
+					{ ManualLedSw.Led_Nbr = 2; 
+						Send_Ansver_from_List(m_LED2, a_OK); }	//Формирование ответа
+				else Send_Ansver_from_List(m_LED2, a_ERROR);	
+			break; }
+			
+			case m_LED3:							
+			{ if( ManualLedSw.Value <= 1000 ) 
+					{ ManualLedSw.Led_Nbr = 3; 
+						Send_Ansver_from_List(m_LED3, a_OK); }	//Формирование ответа
+				else Send_Ansver_from_List(m_LED3, a_ERROR);	
+			break; }
+			
+			case m_LED4:							
+			{ if( ManualLedSw.Value <= 1000 ) 
+					{ ManualLedSw.Led_Nbr = 4; 
+						Send_Ansver_from_List(m_LED4, a_OK); }	//Формирование ответа
+				else Send_Ansver_from_List(m_LED4, a_ERROR);	
+			break; }
+			
+			case m_LED5:							
+			{ if( ManualLedSw.Value <= 1000 ) 
+					{ ManualLedSw.Led_Nbr = 5; 
+						Send_Ansver_from_List(m_LED5, a_OK); }	//Формирование ответа
+				else Send_Ansver_from_List(m_LED5, a_ERROR);	
+			break; }
+			
+			case m_LED6:							
+			{ if( ManualLedSw.Value <= 1000 ) 
+					{ ManualLedSw.Led_Nbr = 6; 
+						Send_Ansver_from_List(m_LED6, a_OK); }	//Формирование ответа
+				else Send_Ansver_from_List(m_LED6, a_ERROR);	
+			break; }
 			
 			case m_CAN_SHOW:	//Команда включения / выключения вывода кодов CAN ----
 			{ switch( Command.Key )

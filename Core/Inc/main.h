@@ -128,7 +128,7 @@ typedef struct
 {
 	volatile char			Status;				//Статус питания от сети (0 - выкл., 1 - вкл.)
 	volatile char			RelayState;		//Статус реле питания от сети (0 - выкл., 1 - вкл.)
-	volatile char			Change;				//Флаг изменения статуса
+	volatile char			ChangeFlag;		//Флаг изменения статуса
 	volatile uint32_t	Consumers;		//Битовые статусы подключенных к питания потребителей (0 - выкл., 1 - вкл. для каждого бита)
 	volatile uint32_t	ChangeDelay;	//Время задержки до разрешения на изменения статуса
 }Power_struct;

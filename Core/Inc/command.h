@@ -6,9 +6,15 @@
 typedef struct 
 {
 	char 	Number;
-	char 	Key;
+	char 	Key;			//Ключь на исполнение команды ( 1 / 0 )
 	int		Value;
 }Command_struct;
+
+typedef struct 
+{
+	char 	Led_Nbr;	//Номер канала света
+	int		Value;		//Значение яркости (0 - 1000)
+}ManualLed_struct;
 
 //Список команд
 extern const uint8_t	Msg_List[];
@@ -46,12 +52,12 @@ enum m_
 
 #define m_H			 1
 //#define m_Q			 2
-#define m_1WIRE_DETECT			 3
-#define m_1WIRE_SHOW_COUNT			 4
-#define m_1WIRE_SHOW_ID			 5
-#define m_1WIRE_WORK			 6
-#define m_BEAN_SEND			 7
-#define m_BEAN_SHOW			 8
+#define m_1WIRE_DETECT			 33
+#define m_1WIRE_SHOW_COUNT			 44
+#define m_1WIRE_SHOW_ID			 55
+#define m_1WIRE_WORK			 66
+#define m_BEAN_SEND			 77
+#define m_BEAN_SHOW			 88
 #define m_BEAN_TEST_SIGNAL			 99
 #define m_CAN_FILTER_SET			 100
 #define m_CAN_SEND			 11
@@ -94,6 +100,7 @@ enum m_
 #define p_RawValue 	4
 
 extern unsigned int	Comm_Task;			//Переменная содержащая биты разрешения работы задачь
+extern ManualLed_struct ManualLedSw;
 #define t_USART_Can_Show			(uint32_t) 1<<20
 #define	t_CAN_Test_Signal			(uint32_t) 1<<29
 

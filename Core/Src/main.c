@@ -159,7 +159,7 @@ int main(void)
 	}	
 	
 	Power.Status = 0;
-	Power.Change = 0;
+	Power.ChangeFlag = 0;
 	Power.Consumers = 0;
 	Power.ChangeDelay = 0;
 	Light_Status.Fartuk = 0;
@@ -199,6 +199,8 @@ int main(void)
 		
 		//Обработчик изменения яркости Led
 		for(i=0;i<Led_Ch_Cnt;i++)	{ if( Led.Channel[i].Delay == 0 ) Led.Channel[i].Delay = Led_Prog_Exec(i); }
+		//Принудительное изменение яркости по команде от UART
+		if( ManualLedSw.Led_Nbr ) { Led.Channel[ ManualLedSw.Led_Nbr-1 ].Target_Bright = ManualLedSw.Value; ManualLedSw.Led_Nbr = 0; }
 		
 		//Обработка данных с датчиков -	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-
 		MoveSensL = SensL;	//Считываем состояние портов с датчиков движения
@@ -236,20 +238,20 @@ int main(void)
 		if (( Power.Status == 1 )&&( Power.Consumers == 0 )&&( Power.ChangeDelay == 0 ))
 		{	//Параметры выключения
 			Power.Status = 0;
-			Power.Change = 1;
+			Power.ChangeFlag = 1;
 			Power.ChangeDelay = Delay_Normal_Power_OFF;
 		}
 		
 		if (( Power.Status == 0 )&&( Power.Consumers ))
 		{	//Параметры включения
 			Power.Status = 1;
-			Power.Change = 1;
+			Power.ChangeFlag = 1;
 			Power.ChangeDelay = 0;
 		}
 		
 		//Обработчик статуса питания от сети
-		if((Power.Change == 1)&&( Power.ChangeDelay == 0))
-		{	Power.Change = 0;
+		if((Power.ChangeFlag == 1)&&( Power.ChangeDelay == 0))
+		{	Power.ChangeFlag = 0;
 			if(Power.Status == 1)	{ Relay_ON; Power.RelayState = 1; }
 			else									{ Relay_OFF; Power.RelayState = 0; }
 		} // 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	- -	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	
@@ -826,7 +828,7 @@ uint32_t Led_Prog_Exec(char i)
 	if(Led.Channel[i].Bright != Led.Channel[i].Target_Bright)	//Если целевая яркость не достигнута -----------
 		{	//Nзменяем текущую яркость Led	
 		if( Led.Channel[i].Target_Bright > Led.Channel[i].Bright )
-		//if ( Led.Channel[i].Step_Direction == 1 )	
+		
 		{	if( (Led.Channel[i].Bright + Led.Channel[i].Step) >= Led.Channel[i].Target_Bright ) Led.Channel[i].Bright = Led.Channel[i].Target_Bright;
 			else Led.Channel[i].Bright += Led.Channel[i].Step;
 		}
@@ -913,15 +915,6 @@ char isLeapYear(uint16_t year)
 	if (year % 4 == 0) return 1;
 	return 0;
 }
-//uint32_t GetDelayAndPowerON(void)
-//{ if(Power.Status == 0)
-//	{	Power.Status = 1;
-//		Power.Change = 1;
-//		//Relay_ON;
-//		return Rel_ON_Delay;														
-//	}
-//	return 0;
-//}
 
 //Функция включения статусов питания и возврата задержки для ожидания стабилизации напряжения после включения
 //Action: 0 - OFF
