@@ -146,7 +146,7 @@ void USART_Buf_Rx_Handler(void)
 			case 0x0A:
 			{
 				if( Detect_Msg == Find_0D )			Detect_Msg = Find_0D0A;	//Ничего не делаем
-				if( Detect_Msg == Find_Msg_0D ) Detect_Msg = Find_0D0A;
+				if( Detect_Msg == Find_Msg_0D ) { Detect_Msg = Find_0D0A; Command_Write( 0, k_END_OF_MSG, 0 ); } //Найден конец сообщения
 				break;
 			}
 			default:
@@ -197,7 +197,7 @@ void USART_Buf_Rx_Handler(void)
 				
 					case p_Value:	//Поиск ключа по списку Key_List-----------------------------------
 					{
-						Search_Result = SearchChr_in_List( &Uart.RX_Buf.Text[ Uart.RX_Buf.Read_Pos ], &Hex_List[0], &Hex_List_Len, &Msg_Number, &Msg_List_Pos, &Answer_Chr_Count);
+						Search_Result = SearchChr_in_List( &Uart.RX_Buf.Text[ Uart.RX_Buf.Read_Pos ], &Hex_List[0], &Dec_List_Len, &Msg_Number, &Msg_List_Pos, &Answer_Chr_Count);
 						if((Search_Result == r_Srch_ChrFound) || (Search_Result == r_Srch_Complete))	//Нашли символ из списка Hex_List
 						{
 							Search_Mode = Command_Write( 0, 0, Msg_Number);
@@ -206,7 +206,7 @@ void USART_Buf_Rx_Handler(void)
 							Msg_List_Pos=0;	//Обнуляем номер найденого сообщения
 							Answer_Chr_Count=0;
 						}
-						else Search_Mode = Command_Write( 0, 0, 0); //Если символ не найден отправляем 0
+						//else Search_Mode = Command_Write( 0, 0, UINT16_MAX); //Если символ не найден отправляем 0
 					break;}	//-----------------------------------------------------------------------		
 					
 					case p_HexValue:	//Поиск ключа по списку Hex_List-------------------------------

@@ -26,6 +26,7 @@ extern const uint16_t	Key_List_Len;
 
 extern const uint8_t	Hex_List[];
 extern const uint16_t	Hex_List_Len;
+extern const uint16_t	Dec_List_Len;
 
 extern const uint8_t	chr_0A;
 extern const uint8_t	chr_0D;
@@ -76,13 +77,15 @@ enum m_
 //#define m_RELAY			 24
 #define m_RESET			 25
 
-//Имена ключей
-#define k_0			 1
-#define k_1			 2
-#define k_DISABLE			 3
-#define k_ENABLE			 4
-#define k_OFF			 5
-#define k_ON			 6
+//Имена ключей команд
+#define k_0			 			1
+#define k_1			 			2
+#define k_DISABLE			3
+#define k_ENABLE			4
+#define k_OFF			 		5
+#define k_ON			 		6
+//#define k_GO					254
+#define k_END_OF_MSG	255
 
 //Имена ответов
 #define a_DISABLE			 1
@@ -113,7 +116,7 @@ extern ManualLed_struct ManualLedSw;
 
 void Str_From_List(const uint8_t *Str, uint8_t *Len, const uint8_t *Comm_List, char Comm_N);
 void Text_From_List( uint8_t *Text, uint8_t *Len, const uint8_t *Comm_Str, char Comm_N );
-extern char Command_Write(char Number, char Key, int Value);
+extern char Command_Write(char Number, char Key, uint16_t Value);
 void Command_Exec(void);
 
 void Send_Ansver_from_List(char Msg, char Key);

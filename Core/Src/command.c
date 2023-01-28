@@ -18,6 +18,7 @@ const uint16_t	Key_List_Len = sizeof Key_List;
 //Список Hex зачений
 const uint8_t	Hex_List[]="_ _0_1_2_3_4_5_6_7_8_9_A_B_C_D_E_F_._:_";
 const uint16_t	Hex_List_Len = sizeof Hex_List;
+const uint16_t	Dec_List_Len = 23;
 
 //Список ответов
 const uint8_t	Answer_List[]="_DISABLE_ENABLE_ERROR_OFF_OK_ON_";
@@ -48,7 +49,7 @@ CAN_Filter_struct CAN_Filter_Bank;	//Переменная для установ�
 //uint32_t Digit;				//Число собранное из данных UART
 
 //Запись в структуру Msg_Cmd ОДНОГО из значений==========================================
-char Command_Write(char Number, char Key, int Value)
+char Command_Write(char Number, char Key, uint16_t Value)
 {
 
 	//Запись значений----------------------------
@@ -102,10 +103,10 @@ char Command_Write(char Number, char Key, int Value)
 		{ 
 			static char step=0;
 			
-			if(Number) { step=1; return p_HexValue; }
+			if(Number) step=0;
 			switch(step)
 			{
-				case 0: break;
+				case 0: step++; return p_HexValue; break;
 				case 1:
 				{	//Найден " " из списка HexValue
 					if(Value == 1) { step++; ManualLedSw.Value = 0; return p_Value; }	
@@ -113,13 +114,13 @@ char Command_Write(char Number, char Key, int Value)
 				}
 				case 2:
 				{ //Найдены "0-9" из списка HexValue
-					if(( Value>1 ) && ( Value < 12 )) 
+					if(( Value > 1 ) && ( Value < 12 )) 
 					{
 						ManualLedSw.Value = ManualLedSw.Value * 10;
 						ManualLedSw.Value += Value - 2; 
 						return p_Value;
 					}
-					else { step = 0; Command.Key = 1; }
+					else step = 0;
 					break;
 				}
 			}
