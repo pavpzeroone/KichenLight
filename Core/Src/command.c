@@ -673,6 +673,22 @@ void Command_Exec(void)
 	}
 }
 
+//Функция возврата указателей *Str на начало строки (номер элемента N) списка List
+unsigned char *get_StrFromList( unsigned char const* List, char N )
+{	char i = 0;	
+	while ( i < N ) //Ищем начало элемента
+		if ( *(List++) == Msg_Spacer ) i++;	
+	return List;     //Даем указателю адрес начала элемента
+}
+
+//Функция поиска длины строки элемента списка
+unsigned int get_LenListStr( unsigned char const* Str )
+{	char i = 0;
+ 	while ( *Str != Msg_Spacer ) { Str++; i++; }
+  	return i;
+}
+
+//На удаление всвязи с заменой на get_StrFromList и get_LenListStr
 //Функция возврата указателей *Str, длинною *Len, на начало строки (номер Comm_N) списка Comm_List
 void Str_From_List(const uint8_t *Str, uint8_t *Len, const uint8_t *Comm_List, char Comm_N)
 {	uint8_t k = 0;	
@@ -710,15 +726,13 @@ void Text_From_List( uint8_t *Text, uint8_t *Len, const uint8_t *Comm_Str, char 
 	//Text++; *Len++;	
 }
 
-void Send_Ansver_from_List(char Msg, char Key)
-{	const uint8_t* S = 0; uint8_t Len;
-	
-	//Формирование ответа
-	UART_Send_Chr(&chr_0D);UART_Send_Chr(&chr_0A);
-	Str_From_List(S, &Len, &Msg_List[0], Msg); UART_Send_Str(S, Len);
-	UART_Send_Chr(&Hex_List[1]);//Передача указателя на " "
-	Str_From_List(S, &Len, &Answer_List[0], Key); UART_Send_Str(S, Len);												
-	UART_Send_Chr(&chr_0D);UART_Send_Chr(&chr_0A);
+void Send_Answer_from_List(char Msg, char Key)
+{	unsigned char const* S;     //Формирование ответа	
+	UART_Send_Chr( &chr_0D );UART_Send_Chr( &chr_0A );	
+  	S = get_StrFromList( Msg_List, Msg );  UART_Send_Str( S, get_LenListStr( S ) );
+	UART_Send_Chr( &Hex_List[1] );//Передача указателя на " "
+	S = get_StrFromList( Answer_List, Key ); UART_Send_Str( S, get_LenListStr( S ) );												
+	UART_Send_Chr( &chr_0D );UART_Send_Chr( &chr_0A );
 }
 
 void Vbat_Show(uint16_t V)
