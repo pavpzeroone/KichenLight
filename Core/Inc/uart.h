@@ -202,8 +202,8 @@ void USART_СAN_Show(char *IDE, uint32_t *ID, uint32_t *ExID, char *RTR, char *D
 
 void USART_Buf_Rx_Handler(void);
 void UART_Tx_Handler(UART_HandleTypeDef *huart);
-uint8_t UART_Send_Chr(const uint8_t *Chr);
-uint8_t UART_Send_Str(const uint8_t *Chr, uint8_t Size);
+uint8_t UART_Send_Chr(uint8_t const* Chr);
+uint8_t UART_Send_Str(uint8_t const* Chr, uint8_t Size);
 uint8_t UART_Send_uint16(uint16_t Digit);
 //void UART_Send_Time(int16_t Year, uint16_t Month, uint16_t Day, uint16_t Hour, uint16_t Minute, uint16_t Second);
 //unsigned int DBG_Handler(void);

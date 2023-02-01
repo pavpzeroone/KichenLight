@@ -152,18 +152,18 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>347</LineNumber>
+          <LineNumber>447</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134219056</Address>
+          <Address>20</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\Core\Src\command.c</Filename>
+          <Filename>../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\KichenLight\../Core/Src/command.c\347</Expression>
+          <Expression>\\KichenLight\../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c\447</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -191,6 +191,11 @@
           <count>4</count>
           <WinNumber>1</WinNumber>
           <ItemText>t_Time_Show</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>&amp;Msg_List</ItemText>
         </Ww>
       </WatchWindow1>
       <Tracepoint>

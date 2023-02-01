@@ -129,8 +129,8 @@ char Command_Write(char Number, char Key, uint16_t Value)
 		case m_TIME_SHOW:
 		case m_LUXDATA_SHOW:
 		case m_DS18B20_SHOW_TEMP:
-		{
-			Command.Key = 1;
+			{	//Запуск команды произойдет по окончанию сообщения (0x0D 0x0A)
+			//Command.Key = 1;
 		break;}
 				
 		//Для сообщений содержащих ключь
@@ -293,8 +293,8 @@ void Command_Exec(void)
 
 			case m_RELAY:	//Команда включения / выключения реле питания-------------
 			{
-				if((Command.Key==k_0)&&(Command.Key==k_OFF))	{ Relay_OFF; Send_Ansver_from_List(m_RELAY, a_OFF); }
-				else 																					{ Relay_ON;	 Send_Ansver_from_List(m_RELAY, a_ON);	}
+				if((Command.Key==k_0)&&(Command.Key==k_OFF))	{ Relay_OFF; Send_Answer_from_List(m_RELAY, a_OFF); }
+				else 																					{ Relay_ON;	 Send_Answer_from_List(m_RELAY, a_ON);	}
 			break;}//---------------------------------------------------------------			
 			
 			case m_TIME_SHOW:	//Команда вывода времени
@@ -304,35 +304,37 @@ void Command_Exec(void)
 			}
 			
 			case m_VBAT_SHOW:	//Команда включения / выключения вывода Vbat ----
-			{ switch( Command.Key )
+			{
+				switch( Command.Key )
 				{
 					case k_ON:
 					case k_ENABLE:
 					{	Comm_Task |= t_Vbat_Show;												//Включаем режим вывода Vbat
-						Send_Ansver_from_List(m_VBAT_SHOW, a_ON);				//Формирование ответа
+						Send_Answer_from_List(m_VBAT_SHOW, a_ON);				//Формирование ответа
 					break;}
 					
 					case k_OFF:
 					case k_DISABLE:
 					{ Comm_Task &= (uint32_t) ~t_Vbat_Show;						//Выключаем режим вывода Vbat
-						Send_Ansver_from_List(m_VBAT_SHOW, a_OFF);			//Формирование ответа
+						Send_Answer_from_List(m_VBAT_SHOW, a_OFF);			//Формирование ответа
 					break;}
 				}
 			break;}
 			
 			case m_VSOLAR_SHOW:	//Команда включения / выключения вывода Vsolar ----
-			{ switch( Command.Key )
+			{
+				switch( Command.Key )
 				{
 					case k_ON:
 					case k_ENABLE:
 					{	Comm_Task |= t_Vsolar_Show;												//Включаем режим вывода Vbat
-						Send_Ansver_from_List(m_VSOLAR_SHOW, a_ON);				//Формирование ответа
+						Send_Answer_from_List(m_VSOLAR_SHOW, a_ON);				//Формирование ответа
 					break;}
 					
 					case k_OFF:
 					case k_DISABLE:
 					{ Comm_Task &= (uint32_t) ~t_Vsolar_Show;						//Выключаем режим вывода Vbat
-						Send_Ansver_from_List(m_VSOLAR_SHOW, a_OFF);			//Формирование ответа
+						Send_Answer_from_List(m_VSOLAR_SHOW, a_OFF);			//Формирование ответа
 					break;}
 				}
 			break;}		
@@ -346,43 +348,43 @@ void Command_Exec(void)
 			case m_LED1:							
 			{ if( ManualLedSw.Value <= 1000 ) 
 					{ ManualLedSw.Led_Nbr = 1; 
-						Send_Ansver_from_List(m_LED1, a_OK); }	//Формирование ответа
-				else Send_Ansver_from_List(m_LED1, a_ERROR);	
+						Send_Answer_from_List(m_LED1, a_OK); }	//Формирование ответа
+				else Send_Answer_from_List(m_LED1, a_ERROR);	
 			break; }
 			
 			case m_LED2:							
 			{ if( ManualLedSw.Value <= 1000 ) 
 					{ ManualLedSw.Led_Nbr = 2; 
-						Send_Ansver_from_List(m_LED2, a_OK); }	//Формирование ответа
-				else Send_Ansver_from_List(m_LED2, a_ERROR);	
+						Send_Answer_from_List(m_LED2, a_OK); }	//Формирование ответа
+				else Send_Answer_from_List(m_LED2, a_ERROR);	
 			break; }
 			
 			case m_LED3:							
 			{ if( ManualLedSw.Value <= 1000 ) 
 					{ ManualLedSw.Led_Nbr = 3; 
-						Send_Ansver_from_List(m_LED3, a_OK); }	//Формирование ответа
-				else Send_Ansver_from_List(m_LED3, a_ERROR);	
+						Send_Answer_from_List(m_LED3, a_OK); }	//Формирование ответа
+				else Send_Answer_from_List(m_LED3, a_ERROR);	
 			break; }
 			
 			case m_LED4:							
 			{ if( ManualLedSw.Value <= 1000 ) 
 					{ ManualLedSw.Led_Nbr = 4; 
-						Send_Ansver_from_List(m_LED4, a_OK); }	//Формирование ответа
-				else Send_Ansver_from_List(m_LED4, a_ERROR);	
+						Send_Answer_from_List(m_LED4, a_OK); }	//Формирование ответа
+				else Send_Answer_from_List(m_LED4, a_ERROR);	
 			break; }
 			
 			case m_LED5:							
 			{ if( ManualLedSw.Value <= 1000 ) 
 					{ ManualLedSw.Led_Nbr = 5; 
-						Send_Ansver_from_List(m_LED5, a_OK); }	//Формирование ответа
-				else Send_Ansver_from_List(m_LED5, a_ERROR);	
+						Send_Answer_from_List(m_LED5, a_OK); }	//Формирование ответа
+				else Send_Answer_from_List(m_LED5, a_ERROR);	
 			break; }
 			
 			case m_LED6:							
 			{ if( ManualLedSw.Value <= 1000 ) 
 					{ ManualLedSw.Led_Nbr = 6; 
-						Send_Ansver_from_List(m_LED6, a_OK); }	//Формирование ответа
-				else Send_Ansver_from_List(m_LED6, a_ERROR);	
+						Send_Answer_from_List(m_LED6, a_OK); }	//Формирование ответа
+				else Send_Answer_from_List(m_LED6, a_ERROR);	
 			break; }
 			
 			case m_CAN_SHOW:	//Команда включения / выключения вывода кодов CAN ----
@@ -564,7 +566,7 @@ void Command_Exec(void)
 //						DRL.Preset.Step 	= 0;
 //						DRL.Preset.Delay 	= 0;
 						
-//						USART_Send_Ansver_from_List(m_LC_DRL_LED, a_ON);
+//						USART_Send_Answer_from_List(m_LC_DRL_LED, a_ON);
 					break;}
 					case k_OFF:
 					{
@@ -572,7 +574,7 @@ void Command_Exec(void)
 //						DRL.Preset.Step 	= 0;
 //						DRL.Preset.Delay 	= 0;
 						
-//						USART_Send_Ansver_from_List(m_LC_DRL_LED, a_OFF);
+//						USART_Send_Answer_from_List(m_LC_DRL_LED, a_OFF);
 					break;}					
 				}
 			break;}
@@ -586,7 +588,7 @@ void Command_Exec(void)
 //						DRL.Preset.Step 	= 0;
 //						DRL.Preset.Delay 	= 0;
 						
-//						USART_Send_Ansver_from_List(m_LC_DRL_DEMO, a_ON);
+//						USART_Send_Answer_from_List(m_LC_DRL_DEMO, a_ON);
 					break;}
 					case k_OFF:
 					{
@@ -594,7 +596,7 @@ void Command_Exec(void)
 //						DRL.Preset.Step 	= 0;
 //						DRL.Preset.Delay 	= 0;
 						
-//						USART_Send_Ansver_from_List(m_LC_DRL_DEMO, a_OFF);
+//						USART_Send_Answer_from_List(m_LC_DRL_DEMO, a_OFF);
 					break;}					
 				}
 			break;}			
@@ -668,13 +670,12 @@ void Command_Exec(void)
 				}
 			break;}			
 		}
-		
 		Command.Key = 0;	//Очистка команды
 	}
 }
 
 //Функция возврата указателей *Str на начало строки (номер элемента N) списка List
-unsigned char *get_StrFromList( unsigned char const* List, char N )
+volatile unsigned char const *get_StrFromList( unsigned char const* List, char N )
 {	char i = 0;	
 	while ( i < N ) //Ищем начало элемента
 		if ( *(List++) == Msg_Spacer ) i++;	
@@ -682,7 +683,7 @@ unsigned char *get_StrFromList( unsigned char const* List, char N )
 }
 
 //Функция поиска длины строки элемента списка
-unsigned int get_LenListStr( unsigned char const* Str )
+unsigned int get_LenListStr( volatile unsigned char const* Str )
 {	char i = 0;
  	while ( *Str != Msg_Spacer ) { Str++; i++; }
   	return i;
@@ -727,42 +728,41 @@ void Text_From_List( uint8_t *Text, uint8_t *Len, const uint8_t *Comm_Str, char 
 }
 
 void Send_Answer_from_List(char Msg, char Key)
-{	unsigned char const* S;     //Формирование ответа	
-	UART_Send_Chr( &chr_0D );UART_Send_Chr( &chr_0A );	
-  	S = get_StrFromList( Msg_List, Msg );  UART_Send_Str( S, get_LenListStr( S ) );
+{	volatile unsigned char const* S;   
+	//Формирование ответа	
+	//UART_Send_Chr( &chr_0D );UART_Send_Chr( &chr_0A );	
+  S = get_StrFromList( Msg_List, Msg );
+	UART_Send_Str( S, get_LenListStr( S ) );												
 	UART_Send_Chr( &Hex_List[1] );//Передача указателя на " "
-	S = get_StrFromList( Answer_List, Key ); UART_Send_Str( S, get_LenListStr( S ) );												
+	S = get_StrFromList( Answer_List, Key ); 
+	UART_Send_Str( S, get_LenListStr( S ) );												
 	UART_Send_Chr( &chr_0D );UART_Send_Chr( &chr_0A );
 }
 
 void Vbat_Show(uint16_t V)
-{ const uint8_t* S = 0; uint8_t Len;
-	
+{	volatile unsigned char const* S; 	
 	//Формирование ответа
-	UART_Send_Chr(&chr_0D);UART_Send_Chr(&chr_0A);
-
-	Str_From_List(S, &Len, &Msg_List[0], m_VBAT_SHOW); UART_Send_Str(S, 5);	
+	//UART_Send_Chr( &chr_0D );UART_Send_Chr( &chr_0A );	
+	S = get_StrFromList( Msg_List, m_VBAT_SHOW );
+	UART_Send_Str( S, 5 );
 	UART_Send_uint16(V);
-
-	UART_Send_Chr(&chr_0D);UART_Send_Chr(&chr_0A);	
+	UART_Send_Chr( &chr_0D );UART_Send_Chr( &chr_0A );	
 }
 
 void Vsolar_Show(uint16_t V)
-{ const uint8_t* S = 0; uint8_t Len;
-	
+{ volatile unsigned char const* S; 	
 	//Формирование ответа
-	UART_Send_Chr(&chr_0D);UART_Send_Chr(&chr_0A);
-	
-	Str_From_List(S, &Len, &Msg_List[0], m_VSOLAR_SHOW); UART_Send_Str(S, 7);
+	//UART_Send_Chr( &chr_0D );UART_Send_Chr( &chr_0A );	
+	S = get_StrFromList( Msg_List, m_VSOLAR_SHOW );
+	UART_Send_Str( S, 7 );
 	UART_Send_uint16(V);
-	
-	UART_Send_Chr(&chr_0D);UART_Send_Chr(&chr_0A);	
+	UART_Send_Chr( &chr_0D );UART_Send_Chr( &chr_0A );
 }
 
 void Time_Show(int16_t Year, uint16_t Month, uint16_t Day, uint16_t Hour, uint16_t Minute, uint16_t Second)
 {
 	//Формирование ответа в формате YYYY.MM.DD HH:MM:SS
-	UART_Send_Chr(&chr_0D);UART_Send_Chr(&chr_0A);
+	//UART_Send_Chr(&chr_0D);UART_Send_Chr(&chr_0A);
 	
 	UART_Send_uint16(Year);
 	UART_Send_Chr(&Hex_List[35]);									//.

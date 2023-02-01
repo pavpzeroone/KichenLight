@@ -27,13 +27,36 @@ Project File Date:  01/24/2023
 <h2>Output:</h2>
 *** Using Compiler 'V6.19', folder: 'C:\Keil_v5\ARM\ARMCLANG\Bin'
 Build target 'KichenLight'
-compiling uart.c...
 compiling command.c...
-compiling main.c...
+../Core/Src/command.c(735): warning: passing 'const volatile unsigned char *' to parameter of type 'const uint8_t *' (aka 'const unsigned char *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+        UART_Send_Str( S, get_LenListStr( S ) );                                                                                                
+                       ^
+../Core/Inc\uart.h(206): note: passing argument to parameter 'Chr' here
+uint8_t UART_Send_Str(uint8_t const* Chr, uint8_t Size);
+                                     ^
+../Core/Src/command.c(738): warning: passing 'const volatile unsigned char *' to parameter of type 'const uint8_t *' (aka 'const unsigned char *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+        UART_Send_Str( S, get_LenListStr( S ) );                                                                                                
+                       ^
+../Core/Inc\uart.h(206): note: passing argument to parameter 'Chr' here
+uint8_t UART_Send_Str(uint8_t const* Chr, uint8_t Size);
+                                     ^
+../Core/Src/command.c(747): warning: passing 'const volatile unsigned char *' to parameter of type 'const uint8_t *' (aka 'const unsigned char *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+        UART_Send_Str( S, 5 );
+                       ^
+../Core/Inc\uart.h(206): note: passing argument to parameter 'Chr' here
+uint8_t UART_Send_Str(uint8_t const* Chr, uint8_t Size);
+                                     ^
+../Core/Src/command.c(757): warning: passing 'const volatile unsigned char *' to parameter of type 'const uint8_t *' (aka 'const unsigned char *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+        UART_Send_Str( S, 7 );
+                       ^
+../Core/Inc\uart.h(206): note: passing argument to parameter 'Chr' here
+uint8_t UART_Send_Str(uint8_t const* Chr, uint8_t Size);
+                                     ^
+4 warnings generated.
 linking...
-Program Size: Code=19098 RO-data=542 RW-data=32 ZI-data=4608  
+Program Size: Code=18878 RO-data=542 RW-data=32 ZI-data=4608  
 FromELF: creating hex file...
-".\KichenLight\KichenLight.axf" - 0 Error(s), 0 Warning(s).
+".\KichenLight\KichenLight.axf" - 0 Error(s), 4 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -57,7 +80,7 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE:5.6.0
       Include file:  CMSIS/Core/Include/tz_context.h
-Build Time Elapsed:  00:00:02
+Build Time Elapsed:  00:00:01
 </pre>
 </body>
 </html>

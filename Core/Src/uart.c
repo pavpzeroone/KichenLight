@@ -95,12 +95,9 @@ uint8_t UART_Send_Chr(const uint8_t *Chr)
 }
 
 //Отправка строки из символов, длинною в Size в буфер передачи UART (Возврщает 1 при переполнении буфера)
-uint8_t	UART_Send_Str(const uint8_t *Str, uint8_t Size)
-{
-	for(uint8_t i=1;Size;i++)
-	{
+uint8_t	UART_Send_Str(uint8_t const *Str, uint8_t Size)
+{	for(uint8_t i=1; i <= Size; i++ )
 		if(UART_Send_Chr(Str++)==1)return 1;	//Возвращаем флаг переполнения буфера
-	}
 	return 0;
 }
 
