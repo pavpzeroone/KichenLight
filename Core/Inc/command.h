@@ -114,6 +114,8 @@ extern ManualLed_struct ManualLedSw;
 #define t_Time_Show						0b00100000	//(uint32_t) 1<<5
 #define t_LuxData_Show				0b00010000	//(uint32_t) 1<<6
 
+unsigned char *get_StrFromList( unsigned char const* List, char N );
+unsigned int get_LenListStr( unsigned char const* Str );
 void Str_From_List(const uint8_t *Str, uint8_t *Len, const uint8_t *Comm_List, char Comm_N);
 void Text_From_List( uint8_t *Text, uint8_t *Len, const uint8_t *Comm_Str, char Comm_N );
 extern char Command_Write(char Number, char Key, uint16_t Value);
