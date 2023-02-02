@@ -176,7 +176,7 @@ int main(void)
   {	
 		//Обработчик UART
 		//HAL_UART_RxCpltCallback(uart);
-		USART_Buf_Rx_Handler();					//Обработчик полученного по UART в буфер
+		UART_Buf_Rx_Handler();					//Обработчик полученного по UART буфера
 		UART_Tx_Handler(Used_uart);			//Обработчик отправки кольцевого буфера
 		
 		//Запуск исполнителя команд получаемых по UART
@@ -193,7 +193,6 @@ int main(void)
 		if( Comm_Task & t_Time_Show )
 		{
 			Comm_Task &= (uint32_t) ~t_Time_Show;			//Выключаем разовай вывод времени
-
 			Time_Show(Time.Year, Time.Month, Time.Day, Time.Hour, Time.Minute, Time.Second);
 		}
 		

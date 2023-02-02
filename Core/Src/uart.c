@@ -117,7 +117,7 @@ uint8_t UART_Send_uint16(uint16_t Digit)
 }
 
 // Обработчик принятых символов _.-=-.___.-=-.___.-=-.___.-=-.___.-=-.___.-=-.___.-=-.___.-=-.___.-=-.__
-void USART_Buf_Rx_Handler(void)
+void UART_Buf_Rx_Handler(void)
 {
 	static Find_type Detect_Msg = Find_None;
 	static char Search_Mode;

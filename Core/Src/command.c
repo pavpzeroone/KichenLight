@@ -24,8 +24,7 @@ const uint16_t	Dec_List_Len = 23;
 const uint8_t	Answer_List[]="_DISABLE_ENABLE_ERROR_OFF_OK_ON_";
 const uint16_t	Answer_List_Len = sizeof Answer_List;
 
-const uint8_t		Msg_Spacer=0x5F;	//"_" - Символ разделитель слов-команд для базы слов-команд
-
+const uint8_t	Msg_Spacer=0x5F;	//"_" - Символ разделитель слов-команд для базы слов-команд
 const uint8_t	chr_0A = 0x0A;
 const uint8_t	chr_0D = 0x0D;
 
@@ -49,9 +48,8 @@ CAN_Filter_struct CAN_Filter_Bank;	//Переменная для установ�
 //uint32_t Digit;				//Число собранное из данных UART
 
 //Запись в структуру Msg_Cmd ОДНОГО из значений==========================================
-char Command_Write(char Number, char Key, uint16_t Value)
+uint8_t Command_Write(uint8_t Number, uint8_t Key, uint16_t Value)
 {
-
 	//Запись значений----------------------------
 	if(Number) 
 	{	
@@ -69,28 +67,9 @@ char Command_Write(char Number, char Key, uint16_t Value)
 			Command.Key=1;
 		break;}
 		
-		case m_HEATER1:			
-		case m_HEATER2:
-		case m_HEATER3:
-		case m_HEATER4:
 		case m_RELAY:
 		{
 			if(Number) return p_Key;	//Если был передан только № сообщения, ищем ключь
-// 			if(Key)
-// 			{
-// 				switch(Key)
-// 				{
-// 					case k_0:
-// 					{
-// 						//Relay_OFF();
-// 					break;}
-// 					
-// 					case k_1:
-// 					{
-// 						//Relay_ON();
-// 					break;}					
-// 				}
-// 			}
 			if(Value) return p_Msg;
 		break;}
 		
@@ -267,30 +246,6 @@ void Command_Exec(void)
 					else UART_Send_Chr( &Msg_List[i] );				
 			break;}//---------------------------------------------------------------
 			
-			case m_HEATER1:	//Команда включения / выключения нагревателя 1----------
-			{
-//				if((Command.Key==k_0)&&(Command.Key==k_OFF))	Heater_1_OFF();
-//				else 																					Heater_1_ON();
-			break;}//---------------------------------------------------------------
-			
-			case m_HEATER2:	//Команда включения / выключения нагревателя 2----------
-			{
-//				if((Command.Key==k_0)&&(Command.Key==k_OFF))	Heater_2_OFF();
-//				else 																					Heater_2_ON();
-			break;}//---------------------------------------------------------------
-
-			case m_HEATER3:	//Команда включения / выключения нагревателя 3----------
-			{
-//				if((Command.Key==k_0)&&(Command.Key==k_OFF))	Heater_3_OFF();
-//				else 																					Heater_3_ON();
-			break;}//---------------------------------------------------------------
-
-			case m_HEATER4:	//Команда включения / выключения нагревателя 4----------
-			{
-//				if((Command.Key==k_0)&&(Command.Key==k_OFF))	Heater_4_OFF();
-//				else 																					Heater_4_ON();
-			break;}//---------------------------------------------------------------	
-
 			case m_RELAY:	//Команда включения / выключения реле питания-------------
 			{
 				if((Command.Key==k_0)&&(Command.Key==k_OFF))	{ Relay_OFF; Send_Answer_from_List(m_RELAY, a_OFF); }
@@ -675,7 +630,7 @@ void Command_Exec(void)
 }
 
 //Функция возврата указателей *Str на начало строки (номер элемента N) списка List
-volatile unsigned char const *get_StrFromList( unsigned char const* List, char N )
+volatile uint8_t const *get_StrFromList( uint8_t const* List, char N )
 {	char i = 0;	
 	while ( i < N ) //Ищем начало элемента
 		if ( *(List++) == Msg_Spacer ) i++;	
@@ -683,7 +638,7 @@ volatile unsigned char const *get_StrFromList( unsigned char const* List, char N
 }
 
 //Функция поиска длины строки элемента списка
-unsigned int get_LenListStr( volatile unsigned char const* Str )
+uint8_t get_LenListStr( volatile uint8_t const* Str )
 {	char i = 0;
  	while ( *Str != Msg_Spacer ) { Str++; i++; }
   	return i;
@@ -691,7 +646,7 @@ unsigned int get_LenListStr( volatile unsigned char const* Str )
 
 //На удаление всвязи с заменой на get_StrFromList и get_LenListStr
 //Функция возврата указателей *Str, длинною *Len, на начало строки (номер Comm_N) списка Comm_List
-void Str_From_List(const uint8_t *Str, uint8_t *Len, const uint8_t *Comm_List, char Comm_N)
+/*void Str_From_List(const uint8_t *Str, uint8_t *Len, const uint8_t *Comm_List, char Comm_N)
 {	uint8_t k = 0;	
 	while ( k < Comm_N )
 	{	
@@ -706,7 +661,7 @@ void Str_From_List(const uint8_t *Str, uint8_t *Len, const uint8_t *Comm_List, c
 		Comm_List++;
 		if ( *Comm_List == Msg_Spacer ) k++;
 	}	
-}
+}*/
 
 void Text_From_List( uint8_t *Text, uint8_t *Len, const uint8_t *Comm_Str, char Comm_N )
 {	char k = 0;
@@ -723,12 +678,10 @@ void Text_From_List( uint8_t *Text, uint8_t *Len, const uint8_t *Comm_Str, char 
 		Comm_Str++;
 		if ( *Comm_Str == Msg_Spacer ) k++;
 	}
-	//*Text = ' ';
-	//Text++; *Len++;	
 }
 
-void Send_Answer_from_List(char Msg, char Key)
-{	volatile unsigned char const* S;   
+void Send_Answer_from_List(uint8_t Msg, uint8_t Key)
+{	volatile uint8_t const* S;   
 	//Формирование ответа	
 	//UART_Send_Chr( &chr_0D );UART_Send_Chr( &chr_0A );	
   S = get_StrFromList( Msg_List, Msg );
@@ -740,7 +693,7 @@ void Send_Answer_from_List(char Msg, char Key)
 }
 
 void Vbat_Show(uint16_t V)
-{	volatile unsigned char const* S; 	
+{	volatile uint8_t const* S; 	
 	//Формирование ответа
 	//UART_Send_Chr( &chr_0D );UART_Send_Chr( &chr_0A );	
 	S = get_StrFromList( Msg_List, m_VBAT_SHOW );
@@ -750,7 +703,7 @@ void Vbat_Show(uint16_t V)
 }
 
 void Vsolar_Show(uint16_t V)
-{ volatile unsigned char const* S; 	
+{ volatile uint8_t const* S; 	
 	//Формирование ответа
 	//UART_Send_Chr( &chr_0D );UART_Send_Chr( &chr_0A );	
 	S = get_StrFromList( Msg_List, m_VSOLAR_SHOW );

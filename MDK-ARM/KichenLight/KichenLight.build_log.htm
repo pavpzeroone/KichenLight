@@ -28,31 +28,34 @@ Project File Date:  01/24/2023
 *** Using Compiler 'V6.19', folder: 'C:\Keil_v5\ARM\ARMCLANG\Bin'
 Build target 'KichenLight'
 compiling command.c...
-../Core/Src/command.c(735): warning: passing 'const volatile unsigned char *' to parameter of type 'const uint8_t *' (aka 'const unsigned char *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+../Core/Src/command.c(688): warning: passing 'const volatile uint8_t *' (aka 'const volatile unsigned char *') to parameter of type 'const uint8_t *' (aka 'const unsigned char *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
         UART_Send_Str( S, get_LenListStr( S ) );                                                                                                
                        ^
-../Core/Inc\uart.h(206): note: passing argument to parameter 'Chr' here
-uint8_t UART_Send_Str(uint8_t const* Chr, uint8_t Size);
+../Core/Inc\uart.h(206): note: passing argument to parameter 'Str' here
+uint8_t UART_Send_Str(uint8_t const *Str, uint8_t Size);
                                      ^
-../Core/Src/command.c(738): warning: passing 'const volatile unsigned char *' to parameter of type 'const uint8_t *' (aka 'const unsigned char *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+../Core/Src/command.c(691): warning: passing 'const volatile uint8_t *' (aka 'const volatile unsigned char *') to parameter of type 'const uint8_t *' (aka 'const unsigned char *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
         UART_Send_Str( S, get_LenListStr( S ) );                                                                                                
                        ^
-../Core/Inc\uart.h(206): note: passing argument to parameter 'Chr' here
-uint8_t UART_Send_Str(uint8_t const* Chr, uint8_t Size);
+../Core/Inc\uart.h(206): note: passing argument to parameter 'Str' here
+uint8_t UART_Send_Str(uint8_t const *Str, uint8_t Size);
                                      ^
-../Core/Src/command.c(747): warning: passing 'const volatile unsigned char *' to parameter of type 'const uint8_t *' (aka 'const unsigned char *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+../Core/Src/command.c(700): warning: passing 'const volatile uint8_t *' (aka 'const volatile unsigned char *') to parameter of type 'const uint8_t *' (aka 'const unsigned char *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
         UART_Send_Str( S, 5 );
                        ^
-../Core/Inc\uart.h(206): note: passing argument to parameter 'Chr' here
-uint8_t UART_Send_Str(uint8_t const* Chr, uint8_t Size);
+../Core/Inc\uart.h(206): note: passing argument to parameter 'Str' here
+uint8_t UART_Send_Str(uint8_t const *Str, uint8_t Size);
                                      ^
-../Core/Src/command.c(757): warning: passing 'const volatile unsigned char *' to parameter of type 'const uint8_t *' (aka 'const unsigned char *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
+../Core/Src/command.c(710): warning: passing 'const volatile uint8_t *' (aka 'const volatile unsigned char *') to parameter of type 'const uint8_t *' (aka 'const unsigned char *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
         UART_Send_Str( S, 7 );
                        ^
-../Core/Inc\uart.h(206): note: passing argument to parameter 'Chr' here
-uint8_t UART_Send_Str(uint8_t const* Chr, uint8_t Size);
+../Core/Inc\uart.h(206): note: passing argument to parameter 'Str' here
+uint8_t UART_Send_Str(uint8_t const *Str, uint8_t Size);
                                      ^
 4 warnings generated.
+compiling main.c...
+compiling stm32f1xx_it.c...
+compiling stm32f1xx_hal_msp.c...
 linking...
 Program Size: Code=18878 RO-data=542 RW-data=32 ZI-data=4608  
 FromELF: creating hex file...

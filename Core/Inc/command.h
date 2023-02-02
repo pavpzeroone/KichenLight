@@ -114,14 +114,14 @@ extern ManualLed_struct ManualLedSw;
 #define t_Time_Show						0b00100000	//(uint32_t) 1<<5
 #define t_LuxData_Show				0b00010000	//(uint32_t) 1<<6
 
-volatile unsigned char const *get_StrFromList( unsigned char const* List, char N );
-unsigned int get_LenListStr( volatile unsigned char const* Str );
-void Str_From_List(const uint8_t *Str, uint8_t *Len, const uint8_t *Comm_List, char Comm_N);
+volatile uint8_t const *get_StrFromList( uint8_t const* List, char N );
+uint8_t get_LenListStr( volatile uint8_t const* Str );
+//void Str_From_List(const uint8_t *Str, uint8_t *Len, const uint8_t *Comm_List, char Comm_N);
 void Text_From_List( uint8_t *Text, uint8_t *Len, const uint8_t *Comm_Str, char Comm_N );
-extern char Command_Write(char Number, char Key, uint16_t Value);
+extern uint8_t Command_Write(uint8_t Number, uint8_t Key, uint16_t Value);
 void Command_Exec(void);
 
-void Send_Answer_from_List(char Msg, char Key);
+void Send_Answer_from_List(uint8_t Msg, uint8_t Key);
 
 void Vbat_Show(uint16_t V);
 void Vsolar_Show(uint16_t V);
