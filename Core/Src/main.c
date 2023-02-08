@@ -190,10 +190,19 @@ int main(void)
 		
 		//Обработчик часов
 		if( Time.Tik )Clock_Handler();
+		
 		if( Comm_Task & t_Time_Show )
 		{
 			Comm_Task &= (uint32_t) ~t_Time_Show;			//Выключаем разовай вывод времени
 			Time_Show(Time.Year, Time.Month, Time.Day, Time.Hour, Time.Minute, Time.Second);
+		}
+		
+		if( Comm_Task & t_Time_Set )
+		{
+			Comm_Task &= (uint32_t) ~t_Time_Set;			//Выключаем разовай вывод времени
+			//if( isValid_DataTime ( ManualTime.Year
+			Time_Set(ManualTime.Year, ManualTime.Month, ManualTime.Day, ManualTime.Hour, ManualTime.Minute, ManualTime.Second);
+			Comm_Task |= t_Time_Show;													//Включаем разовый показ времени
 		}
 		
 		//Обработчик изменения яркости Led
@@ -826,7 +835,7 @@ void Set_Led_Bright(char Led_Number, int bright)
 uint32_t Led_Prog_Exec(char i)
 {	uint32_t a;	
 	if(Led.Channel[i].Bright != Led.Channel[i].Target_Bright)	//Если целевая яркость не достигнута -----------
-		{	//Nзменяем текущую яркость Led	
+	{	//Nзменяем текущую яркость Led	
 		if( Led.Channel[i].Target_Bright > Led.Channel[i].Bright )
 		
 		{	if( (Led.Channel[i].Bright + Led.Channel[i].Step) >= Led.Channel[i].Target_Bright ) Led.Channel[i].Bright = Led.Channel[i].Target_Bright;
@@ -916,6 +925,24 @@ char isLeapYear(uint16_t year)
 	return 0;
 }
 
+//Проверка и установка даты и времени
+void Time_Set (uint16_t Year, uint16_t Month, uint16_t Day, uint16_t Hour, uint16_t Minute, uint16_t Second )
+{
+	if(( Year >= 2000 ) && ( Year < 3000 ))
+		if( Month <= 12 )
+			if( Day <= getNumberOfDayInMonth( Month, Year ) )
+				if( Hour < 24 )
+					if( Minute < 60 )
+						if( Second < 60 ) 
+						{ Time.Year = ManualTime.Year; 
+							Time.Month = ManualTime.Month; 
+							Time.Day = ManualTime.Day;
+							Time.Hour = ManualTime.Hour;
+							Time.Minute = ManualTime.Minute;
+							Time.Second = ManualTime.Second;
+						}
+}
+
 //Функция включения статусов питания и возврата задержки для ожидания стабилизации напряжения после включения
 //Action: 0 - OFF
 //				1 - ON
@@ -952,15 +979,8 @@ char isLeapYear(uint16_t year)
 //}
 
 void TimingDelay_Decrement(void)
-{
-	char i;
+{ char i;
 	
-//	if(TimingDelay_OW_Timeout)TimingDelay_OW_Timeout--;
-//	if(TimingDelay_1sec)TimingDelay_1sec--;
-//	if(TimingDelay_Sens)TimingDelay_Sens--;
-//	if(TimingDelay_Temp)TimingDelay_Temp--;	
-	//if(Bright_Save_Delay)Bright_Save_Delay--;
-//		
 	for(i=0;i<Led_Ch_Cnt;i++) { if( Led.Channel[i].Delay ) Led.Channel[i].Delay--; }
 	for(i=0;i<Mov_Sens_Cnt;i++) { if( MovSens.Channel[i].LifeTime ) MovSens.Channel[i].LifeTime--; }
 	if( ADC_Delay ) ADC_Delay--;
@@ -968,14 +988,6 @@ void TimingDelay_Decrement(void)
 	if( Charger_Delay ) Charger_Delay--;
 	if( LuxIntegry_Period ) LuxIntegry_Period--;
 	if( Time.Delay ) Time.Delay--; else { Time.Delay = 1000; Time.Tik = 1; }
-	//if( Status.Preset.Delay ) Status.Preset.Delay--;
-//	
-//	if(TimingDelay_LC200_Status)TimingDelay_LC200_Status--;
-//	
-//	if( TimingDelay_Key ) TimingDelay_Key--;
-//	if( TimingDelay_Status_Led ) TimingDelay_Status_Led--;
-//	
-//	if( TimingDelay_Wdg_Power ) TimingDelay_Wdg_Power--;
 	
 	#ifdef DBG_USART
 		if( TimingDelay_DBG_Temp ) TimingDelay_DBG_Temp--;

@@ -32,6 +32,7 @@ volatile Command_struct Command;	//Команда с параметрами
 
 unsigned int	Comm_Task;				  //Набор битов-флагов исполнения задачь
 ManualLed_struct ManualLedSw;
+ManualTime_struct ManualTime;
 
 //Переменные используемые в main
 char BEAN_Code[15];	//Переменная для отправки кода BEAN
@@ -48,12 +49,12 @@ CAN_Filter_struct CAN_Filter_Bank;	//Переменная для установ�
 //uint32_t Digit;				//Число собранное из данных UART
 
 //Запись в структуру Msg_Cmd ОДНОГО из значений==========================================
-uint8_t Command_Write(uint8_t Number, uint8_t Key, uint16_t Value)
+uint8_t Command_Write(uint8_t Cmd, uint8_t Key, uint16_t Value)
 {
 	//Запись значений----------------------------
-	if(Number) 
+	if(Cmd) 
 	{	
-		Command.Number=Number;
+		Command.Number=Cmd;
 		Command.Key=Key;			//Фактически стирание
 		Command.Value=Value;	//Фактически стирание
 	}
@@ -69,7 +70,7 @@ uint8_t Command_Write(uint8_t Number, uint8_t Key, uint16_t Value)
 		
 		case m_RELAY:
 		{
-			if(Number) return p_Key;	//Если был передан только № сообщения, ищем ключь
+			if(Cmd) return p_Key;		//Если был передан только № сообщения, ищем ключь
 			if(Value) return p_Msg;
 		break;}
 		
@@ -82,13 +83,14 @@ uint8_t Command_Write(uint8_t Number, uint8_t Key, uint16_t Value)
 		{ 
 			static char step=0;
 			
-			if(Number) step=0;
+			if(Cmd) step=0;
 			switch(step)
 			{
 				case 0: step++; return p_HexValue; break;
 				case 1:
 				{	//Найден " " из списка HexValue
 					if(Value == 1) { step++; ManualLedSw.Value = 0; return p_Value; }	
+					else return p_Msg;
 					break;
 				}
 				case 2:
@@ -99,7 +101,7 @@ uint8_t Command_Write(uint8_t Number, uint8_t Key, uint16_t Value)
 						ManualLedSw.Value += Value - 2; 
 						return p_Value;
 					}
-					else step = 0;
+					else return p_Msg;
 					break;
 				}
 			}
@@ -124,14 +126,94 @@ uint8_t Command_Write(uint8_t Number, uint8_t Key, uint16_t Value)
 		case m_LCD_TEMP_SHOW:
 		case m_LC_DRL_LED:
 		case m_LC_DRL_DEMO:
-		{	if(Number) return p_Key;	//Если был передан только № сообщения, ищем ключь
+		{	if(Cmd) return p_Key;	//Если был передан только № сообщения, ищем ключь
 		break;}			
 
+		case m_TIME_SET:						//Прием даты и времени в формате 2023.12.11 10:32:57
+		{
+			static char step=0;
+			
+			if(Cmd) step=0;
+			switch(step)
+			{
+				case 0: step++; return p_HexValue; break;
+				case 1:
+				{	//Найден " " из списка HexValue
+					if( Value == 1 ) { step++; ManualTime.Year = 0; return p_Value; }	
+					else return p_Msg;
+				break;}
+				case 2:	//Ищем Год
+				{ //Найдены "0-9" из списка HexValue
+					if(( Value > 1 ) && ( Value < 12 )) 
+					{ ManualTime.Year = ManualTime.Year * 10;
+						ManualTime.Year += Value - 2; 
+						return p_Value;
+					}
+					else //Найден "." из списка HexValue
+						if( Value == 35 ) { step++; ManualTime.Month = 0; return p_Value; }
+						else return p_Msg;
+				break;}
+				case 3:	//Ищем Месяц
+				{ //Найдены "0-9" из списка HexValue
+					if(( Value > 1 ) && ( Value < 12 )) 
+					{ ManualTime.Month = ManualTime.Month * 10;
+						ManualTime.Month += Value - 2; 
+						return p_Value;
+					}
+					else //Найден "." из списка HexValue
+						if( Value == 35 ) { step++; ManualTime.Day = 0; return p_Value; }
+						else return p_Msg;
+				break;}
+				case 4:	//Ищем День
+				{ //Найдены "0-9" из списка HexValue
+					if(( Value > 1 ) && ( Value < 12 )) 
+					{ ManualTime.Day = ManualTime.Day * 10;
+						ManualTime.Day += Value - 2; 
+						return p_Value;
+					}
+					else //Найден " " из списка HexValue
+						if( Value == 1 ) { step++; ManualTime.Hour = 0; return p_Value; }
+						else return p_Msg;
+				break;}
+				case 5:	//Ищем Час
+				{ //Найдены "0-9" из списка HexValue
+					if(( Value > 1 ) && ( Value < 12 )) 
+					{ ManualTime.Hour = ManualTime.Hour * 10;
+						ManualTime.Hour += Value - 2; 
+						return p_Value;
+					}
+					else //Найден ":" из списка HexValue
+						if( Value == 37 ) { step++; ManualTime.Minute = 0; return p_Value; }
+						else return p_Msg;
+				break;}	
+				case 6:	//Ищем Минуты
+				{ //Найдены "0-9" из списка HexValue
+					if(( Value > 1 ) && ( Value < 12 )) 
+					{ ManualTime.Minute = ManualTime.Minute * 10;
+						ManualTime.Minute += Value - 2; 
+						return p_Value;
+					}
+					else //Найден ":" из списка HexValue
+						if( Value == 37 ) { step++; ManualTime.Second = 0; return p_Value; }
+						else return p_Msg;
+				break;}			
+				case 7:	//Ищем Секунды
+				{ //Найдены "0-9" из списка HexValue
+					if(( Value > 1 ) && ( Value < 12 )) 
+					{ ManualTime.Second = ManualTime.Second * 10;
+						ManualTime.Second += Value - 2; 
+						return p_Value;
+					}
+					else return p_Msg;
+				break;}					
+			}			
+		break;}
+		
 		case m_BEAN_SEND:
 		{
 			static char step=0, spacer=0;
 			
-			if(Number) { step=0; spacer=0; return p_HexValue;}
+			if(Cmd) { step=0; spacer=0; return p_HexValue;}
 			if(Value)
 			{
 				switch(Value)
@@ -163,7 +245,7 @@ uint8_t Command_Write(uint8_t Number, uint8_t Key, uint16_t Value)
 		{
 			static char step=0, spacer=0;
 			
-			if(Number) { step=0; spacer=0; return p_HexValue;}
+			if(Cmd) { step=0; spacer=0; return p_HexValue;}
 			if(Value)
 			{
 				switch(Value)
@@ -241,7 +323,7 @@ void Command_Exec(void)
 		switch( Command.Number )
 		{
 			case m_Q:	//Команда подсказки по именам команд--------------------------
-			{	for(unsigned int i=0; i<Msg_List_Len; i++)
+			{	for(uint16_t i=0; i<Msg_List_Len; i++)
 					if(Msg_List[i] == Msg_Spacer) UART_Send_Chr( &chr_0D );	//Перенос строки												
 					else UART_Send_Chr( &Msg_List[i] );				
 			break;}//---------------------------------------------------------------
@@ -255,6 +337,12 @@ void Command_Exec(void)
 			case m_TIME_SHOW:	//Команда вывода времени
 			{
 				Comm_Task |= t_Time_Show;													//Включаем разовый показ времени
+				break;
+			}
+			
+			case m_TIME_SET:	//Команда установки даты и времени YYYY.MM.DD hh:mm:ss
+			{
+				Comm_Task |= t_Time_Set;													//Инициализируем установку даты и времени
 				break;
 			}
 			

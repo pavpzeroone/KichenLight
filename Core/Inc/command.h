@@ -4,17 +4,24 @@
 #define Comm_h
 
 typedef struct 
-{
-	char 	Number;
+{ char 	Number;
 	char 	Key;			//Ключь на исполнение команды ( 1 / 0 )
 	int		Value;
 }Command_struct;
 
 typedef struct 
-{
-	char 	Led_Nbr;	//Номер канала света
+{ char 	Led_Nbr;	//Номер канала света
 	int		Value;		//Значение яркости (0 - 1000)
 }ManualLed_struct;
+
+typedef struct 
+{ volatile uint16_t Year;
+	volatile uint16_t Month;
+	volatile uint16_t Day;
+	volatile uint16_t Hour;
+	volatile uint16_t Minute;
+	volatile uint16_t Second;
+}ManualTime_struct;
 
 //Список команд
 extern const uint8_t	Msg_List[];
@@ -62,7 +69,7 @@ enum m_
 #define m_BEAN_TEST_SIGNAL			 99
 #define m_CAN_FILTER_SET			 100
 #define m_CAN_SEND			 11
-#define m_CAN_SHOW			 12
+#define m_CAN_SHOW			 112
 #define m_CAN_TEST_SIGNAL			 130
 #define m_CONNECT			 14
 #define m_DS18B20_REQUEST			 15
@@ -104,6 +111,7 @@ enum m_
 
 extern unsigned int	Comm_Task;			//Переменная содержащая биты разрешения работы задачь
 extern ManualLed_struct ManualLedSw;
+extern ManualTime_struct ManualTime;
 #define t_USART_Can_Show			(uint32_t) 1<<20
 #define	t_CAN_Test_Signal			(uint32_t) 1<<29
 
@@ -112,7 +120,8 @@ extern ManualLed_struct ManualLedSw;
 #define t_Vbat_Show						0b10000000	//(uint32_t) 1<<3
 #define t_Vsolar_Show					0b01000000	//(uint32_t) 1<<4
 #define t_Time_Show						0b00100000	//(uint32_t) 1<<5
-#define t_LuxData_Show				0b00010000	//(uint32_t) 1<<6
+#define t_Time_Set						0b00010000	//(uint32_t) 1<<5
+#define t_LuxData_Show				0b00001000	//(uint32_t) 1<<6
 
 volatile uint8_t const *get_StrFromList( uint8_t const* List, char N );
 uint8_t get_LenListStr( volatile uint8_t const* Str );

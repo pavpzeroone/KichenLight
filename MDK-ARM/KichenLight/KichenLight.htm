@@ -3,9 +3,9 @@
 <title>Static Call Graph - [.\KichenLight\KichenLight.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\KichenLight\KichenLight.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6190004: Last Updated: Thu Feb  2 16:01:59 2023
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6190004: Last Updated: Wed Feb  8 14:01:28 2023
 <BR><P>
-<H3>Maximum Stack Usage =        204 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
+<H3>Maximum Stack Usage =        212 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
 __rt_entry_main &rArr; main &rArr; HAL_UART_Init &rArr; HAL_UART_MspInit &rArr; HAL_GPIO_Init
 <P>
@@ -203,7 +203,7 @@ Global Symbols
 <P><STRONG><a name="[b2]"></a>__rt_entry_postsh_1</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __rtentry2.o(.ARM.Collect$$rtentry$$00000009))
 
 <P><STRONG><a name="[40]"></a>__rt_entry_main</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __rtentry2.o(.ARM.Collect$$rtentry$$0000000D))
-<BR><BR>[Stack]<UL><LI>Max Depth = 204 + Unknown Stack Size
+<BR><BR>[Stack]<UL><LI>Max Depth = 212 + Unknown Stack Size
 <LI>Call Chain = __rt_entry_main &rArr; main &rArr; HAL_UART_Init &rArr; HAL_UART_MspInit &rArr; HAL_GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[41]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
@@ -445,7 +445,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f103xb.o(RESET)
 </UL>
-<P><STRONG><a name="[4e]"></a>Command_Exec</STRONG> (Thumb, 2582 bytes, Stack size 32 bytes, command.o(.text.Command_Exec))
+<P><STRONG><a name="[4e]"></a>Command_Exec</STRONG> (Thumb, 2590 bytes, Stack size 32 bytes, command.o(.text.Command_Exec))
 <BR><BR>[Stack]<UL><LI>Max Depth = 64<LI>Call Chain = Command_Exec &rArr; Send_Answer_from_List &rArr; UART_Send_Str
 </UL>
 <BR>[Calls]<UL><LI><a href="#[52]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Text_From_List
@@ -456,7 +456,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[41]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[82]"></a>Command_Write</STRONG> (Thumb, 690 bytes, Stack size 0 bytes, command.o(.text.Command_Write))
+<P><STRONG><a name="[82]"></a>Command_Write</STRONG> (Thumb, 1062 bytes, Stack size 0 bytes, command.o(.text.Command_Write))
 <BR><BR>[Called By]<UL><LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_Buf_Rx_Handler
 </UL>
 
@@ -970,8 +970,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[41]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[41]"></a>main</STRONG> (Thumb, 3566 bytes, Stack size 112 bytes, main.o(.text.main))
-<BR><BR>[Stack]<UL><LI>Max Depth = 204 + Unknown Stack Size
+<P><STRONG><a name="[41]"></a>main</STRONG> (Thumb, 3814 bytes, Stack size 120 bytes, main.o(.text.main))
+<BR><BR>[Stack]<UL><LI>Max Depth = 212 + Unknown Stack Size
 <LI>Call Chain = main &rArr; HAL_UART_Init &rArr; HAL_UART_MspInit &rArr; HAL_GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[56]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_ADCEx_InjectedStop_IT

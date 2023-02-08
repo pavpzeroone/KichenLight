@@ -186,6 +186,7 @@ void LuxHandler(uint16_t Lux);
 void Clock_Handler(void);
 int16_t getNumberOfDayInMonth(uint16_t month, uint16_t year);
 char isLeapYear(uint16_t year);
+void Time_Set (uint16_t Year, uint16_t Month, uint16_t Day, uint16_t Hour, uint16_t Minute, uint16_t Second );
 void TimingDelay_Decrement(void);
 /* USER CODE END EFP */
 
