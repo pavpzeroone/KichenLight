@@ -28,15 +28,16 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-Time_struct			Time;
-Led_struct 			Led;
-MovSens_struct	MovSens;
-Light_Status_struct	Light_Status;
-LuxData_struct	LuxData;
+Time_struct						Time;
+Led_struct 						Led;
+MovSens_struct				MovSens;
+//Light_Status_struct		Light_Status;
+LuxData_struct				LuxData;
 
-char ADC_compl_flag = 0;
-//char	Power_Status = 0;				//Статус наличия питания 220В
-Power_struct Power;
+Power_struct Power;			//Статусы питания 220В
+
+char ADC_compl_flag = 0;				
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -67,8 +68,8 @@ volatile uint32_t		ADC_Delay = 1000,
 uint16_t	Vbat[4] = { vBat_Norm, vBat_Norm, vBat_Norm, 0 },
 					Vlsens[3];
 					
-char firstByteWait=1; // признак ожидание первого байта		
-uint8_t buf=0;
+//char firstByteWait=1; // признак ожидание первого байта		
+//uint8_t buf=0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -98,7 +99,7 @@ int main(void)
 	int i;
 	char 	Mode = 0,
 				Mode_step = 0;
-	//uint16_t adc_data[2] = {0,}; 3.73V=0BE2
+
 	char	ADC_Step = 0;
 	char	MoveSensL = 0, MoveSensL_ = 0,	//Данные с датчиков текущие и предыдущие
 				MoveSensR = 0, MoveSensR_ = 0;
@@ -106,6 +107,7 @@ int main(void)
 	Time.Year = 2023;
 	Time.Month = 1;
 	Time.Day = 18;
+	Time.Hour = 19;
 	
 	LuxData.Pos = 0;
   /* USER CODE END 1 */
@@ -162,9 +164,9 @@ int main(void)
 	Power.ChangeFlag = 0;
 	Power.Consumers = 0;
 	Power.ChangeDelay = 0;
-	Light_Status.Fartuk = 0;
-	Light_Status.Floor = 0;
-	Light_Status.Cabinet = 0;
+	//Light_Status.Fartuk = 0;
+	//Light_Status.Floor = 0;
+	//Light_Status.Cabinet = 0;
 	
 	//HAL_UART_Receive_IT (uart, &buf, 1); // запуск приема UART
 	UART_Rx_Start(Used_uart);
@@ -326,7 +328,7 @@ int main(void)
 			
 			if( Charger_Delay == 0 )
 			{ //Выключаем режим заряда батареии
-				Power.Consumers &= (uint32_t) ~pc_Battery;	//Выключаем флаг зарядка батареи
+				Power.Consumers &= (uint8_t) ~pc_Battery;	//Выключаем флаг зарядка батареи
 			}
 			else if( Vbat[0] >= vBat_High ) Charger_Delay = 0;	//Если батарея заряжена ускоряем окончание зарядки
 		} // 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	- -	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-
@@ -401,7 +403,7 @@ int main(void)
 						Led.Channel[0].Target_Bright = 0;
 						Led.Channel[1].Target_Bright = 0;					
 						//Light_Status.Fartuk = 0;
-						Power.Consumers &= (uint32_t) ~pc_Fartuk;	//Выключаем флаг фартук
+						Power.Consumers &= (uint8_t) ~pc_Fartuk;	//Выключаем флаг фартук
 					}
 				}
 				break;
@@ -430,7 +432,7 @@ int main(void)
 					{	//Начинаем выключение фартука
 						Led.Channel[0].Target_Bright = 0;
 						Led.Channel[1].Target_Bright = 0;											
-						Power.Consumers &= (uint32_t) ~pc_Fartuk;	//Выключаем флаг фартук
+						Power.Consumers &= (uint8_t) ~pc_Fartuk;	//Выключаем флаг фартук
 					}
 				}							
 				break;
@@ -852,7 +854,8 @@ uint32_t Led_Prog_Exec(char i)
 	}
 	else														//????? ????????? ? ?????????? ???? ????????? ------------------------------
 	{
-		a = 0xFFFF;
+		//a = 0xFFFF;
+		a = Led.Channel[i].Step_Delay;
 	}
 	
 	return a;

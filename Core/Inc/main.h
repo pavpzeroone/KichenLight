@@ -61,8 +61,8 @@ extern "C" {
 #define vBat_Norm			3030					//3.75V = 3032
 #define vBat_High			3395					//(4.2V)
 
-#define Bright_Day			500					//Яркость освещения для дня
-#define Bright_Night		100					//Яркость освещения для ночи
+#define Bright_Day			650					//Яркость освещения для дня
+#define Bright_Night		150					//Яркость освещения для ночи
 
 #define vLightSens_Night						2000	//Напряжение на датчике освещения ниже которого наступет ночь
 #define vLightSens_Day							2300	//Напряжение на датчике освещения выше которого наступет день
@@ -115,7 +115,7 @@ typedef struct
 
 typedef struct
 {
-	volatile char		Detect;					//Срабатывание (0 - 1)
+	volatile char			Detect;				//Срабатывание (0 - 1)
 	volatile uint32_t	LifeTime;			//Время жизни статуса срабатывания датчика
 	
 }MovSensChannel_struct;
@@ -125,19 +125,19 @@ typedef struct
 	MovSensChannel_struct 		Channel[Mov_Sens_Cnt];
 }MovSens_struct;
 
-typedef struct
-{
-	volatile char		Fartuk;					//Статус работы освещения фартука (0 - выкл., 1 - вкл.)
-	volatile char		Floor;
-	volatile char		Cabinet;
-}Light_Status_struct;
+//typedef struct
+//{
+//	volatile char		Fartuk;					//Статус работы освещения фартука (0 - выкл., 1 - вкл.)
+//	volatile char		Floor;
+//	volatile char		Cabinet;
+//}Light_Status_struct;
 
 typedef struct
 {
 	volatile char			Status;				//Статус питания от сети (0 - выкл., 1 - вкл.)
 	volatile char			RelayState;		//Статус реле питания от сети (0 - выкл., 1 - вкл.)
 	volatile char			ChangeFlag;		//Флаг изменения статуса
-	volatile uint32_t	Consumers;		//Битовые статусы подключенных к питания потребителей (0 - выкл., 1 - вкл. для каждого бита)
+	volatile uint8_t	Consumers;		//Битовые статусы подключенных к питания потребителей (0 - выкл., 1 - вкл. для каждого бита)
 	volatile uint32_t	ChangeDelay;	//Время задержки до разрешения на изменения статуса
 }Power_struct;
 
