@@ -43,18 +43,20 @@ enum m_
 {
 	m_null = 0,
 	m_Q,
-	m_RELAY,
+	m_DEBUG,	
 	m_LED1,
 	m_LED2,
 	m_LED3,
 	m_LED4,
 	m_LED5,
 	m_LED6,
-	m_VBAT_SHOW,
-	m_VSOLAR_SHOW,
-	m_TIME_SHOW,
+	m_LUXDATA_SHOW,
+	m_RELAY,
+	m_RESET,
 	m_TIME_SET,
-	m_LUXDATA_SHOW
+	m_TIME_SHOW,
+	m_VBAT_SHOW,
+	m_VSOLAR_SHOW	
 };
 
 
@@ -72,7 +74,7 @@ enum m_
 #define m_CAN_SHOW			 112
 #define m_CAN_TEST_SIGNAL			 130
 #define m_CONNECT			 14
-#define m_DS18B20_REQUEST			 15
+#define m_DS18B20_REQUEST			 115
 #define m_DS18B20_SHOW_TEMP			 16
 #define m_HEATER1			 17
 #define m_HEATER2			 18
@@ -122,6 +124,7 @@ extern ManualTime_struct ManualTime;
 #define t_Time_Show						0b00100000	//(uint32_t) 1<<5
 #define t_Time_Set						0b00010000	//(uint32_t) 1<<5
 #define t_LuxData_Show				0b00001000	//(uint32_t) 1<<6
+#define t_Debug								0b00000001
 
 volatile uint8_t const *get_StrFromList( uint8_t const* List, char N );
 uint8_t get_LenListStr( volatile uint8_t const* Str );
@@ -136,4 +139,5 @@ void Vbat_Show(uint16_t V);
 void Vsolar_Show(uint16_t V);
 void Time_Show(int16_t Year, uint16_t Month, uint16_t Day, uint16_t Hour, uint16_t Minute, uint16_t Second);
 uint8_t LuxData_Show(uint16_t* Lux, uint16_t len, uint16_t pos);
+void Debug_Show(uint8_t Mode, uint8_t MSensL, uint8_t MSensR, uint8_t Consumers);
 #endif

@@ -42,10 +42,10 @@ extern "C" {
 #define Led_Ch_Cnt		6							//Количество каналов управления
 #define Mov_Sens_Cnt 	2							//Количество датчиков движения
 
-#define Relay_ON_Delay		400				//Задержка до изменения яркости на время включения питания 220В
+#define Relay_ON_Delay							400		//Задержка до изменения яркости на время включения питания 220В
 
 #define	MovSens_Status_ON_Timeout		30000	//Задержка до сброса статуса датчика движения (30 сек)
-#define	MovSens_Status_OFF_Timeout		500	//Задержка до сброса статуса датчика движения (0,5 сек)
+#define	MovSens_Status_OFF_Timeout	500		//Задержка до сброса статуса датчика движения (0,5 сек)
 
 #ifdef DEBUG_MODE
 #define Delay_Normal_Power_OFF			30000	//Задержка до выключения сетевого питания в обычном режиме
@@ -116,8 +116,7 @@ typedef struct
 typedef struct
 {
 	volatile char			Detect;				//Срабатывание (0 - 1)
-	volatile uint32_t	LifeTime;			//Время жизни статуса срабатывания датчика
-	
+	volatile uint32_t	LifeTime;			//Время жизни статуса срабатывания датчика	
 }MovSensChannel_struct;
 
 typedef struct

@@ -96,13 +96,13 @@ static void MX_USART3_UART_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	int i;
-	char 	Mode = 0,
-				Mode_step = 0;
+	uint32_t 	i;
+	uint8_t		Mode = 0,
+						Mode_step = 0;
 
-	char	ADC_Step = 0;
-	char	MoveSensL = 0, MoveSensL_ = 0,	//Данные с датчиков текущие и предыдущие
-				MoveSensR = 0, MoveSensR_ = 0;
+	uint8_t		ADC_Step = 0;
+	uint8_t		MoveSensL = 0, MoveSensL_ = 0,	//Данные с датчиков текущие и предыдущие
+						MoveSensR = 0, MoveSensR_ = 0;
 	
 	Time.Year = 2023;
 	Time.Month = 1;
@@ -184,6 +184,21 @@ int main(void)
 		//Запуск исполнителя команд получаемых по UART
 		Command_Exec();
 		
+		//Обработчик вывода переменных для Debug
+		if( Comm_Task & t_Debug )
+		{	static uint8_t _Mode = 0;
+			static uint8_t _MSensL = 0;
+			static uint8_t _MSensR = 0;
+			static uint8_t _Consumers = 0;
+			if(( _Mode != Mode ) || ( _MSensL != MovSens.Channel[0].Detect ) || ( _MSensR != MovSens.Channel[1].Detect ) || ( _Consumers != Power.Consumers ))
+			{
+				_Mode = Mode;
+				_MSensL = MovSens.Channel[0].Detect;
+				_MSensR = MovSens.Channel[1].Detect;
+				Debug_Show( _Mode, _MSensL, _MSensR, _Consumers );
+			}				
+		}
+		
 		//Обработчик вывода массива данных освещенности
 		if( Comm_Task & t_LuxData_Show )
 		{
@@ -216,7 +231,7 @@ int main(void)
 		MoveSensL = SensL;	//Считываем состояние портов с датчиков движения
 		MoveSensR = SensR;
 		
-		if(MoveSensL != MoveSensL_)		//Если изменилось состояное с датчика
+		if( MoveSensL != MoveSensL_ )		//Если изменилось состояное с датчика
 		{ MoveSensL_ = MoveSensL;
 			if( MoveSensL == 1 )				//Датчик сработал
 			{	MovSens.Channel[0].Detect = 1;
@@ -233,16 +248,17 @@ int main(void)
 		}
 				
 		//Обработчик сброса статуса срабатывания датчиков движения
-		for(i=0;i<Mov_Sens_Cnt;i++)	
-		{ if( MovSens.Channel[i].LifeTime == 0 ) 
-			{	if( MovSens.Channel[i].Detect == 1)
-				{
-					MovSens.Channel[i].Detect = 0;
-					MovSens.Channel[i].LifeTime = MovSens_Status_OFF_Timeout;
-				}
-				//else MovSens.Channel[i].Delay = MovSens_Status_ON_Timeout; 	
-			}		
-		}	// 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	- -	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	
+		for( i=0; i<Mov_Sens_Cnt; i++ )	
+			if( MovSens.Channel[i].LifeTime == 0 ) MovSens.Channel[i].Detect >>= 1; //Обнуление
+//		{ if( MovSens.Channel[i].LifeTime == 0 ) 
+//			{	if( MovSens.Channel[i].Detect == 1)
+//				{
+//					MovSens.Channel[i].Detect = 0;
+//					//MovSens.Channel[i].LifeTime = MovSens_Status_OFF_Timeout;
+//				}
+//				//else MovSens.Channel[i].Delay = MovSens_Status_ON_Timeout; 	
+//			}		
+//		}	// 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	- -	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	
 
 		//Обработчик включения/выключения питания 220В - - - - - - - - - - - - - - - -
 		if (( Power.Status == 1 )&&( Power.Consumers == 0 )&&( Power.ChangeDelay == 0 ))
@@ -353,7 +369,7 @@ int main(void)
 			{
 				Mode = 4;
 			}
-		}
+		} // 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	- -	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-
 		
 		switch(Mode)
 		{
@@ -376,22 +392,18 @@ int main(void)
 						break;
 					}
 				}
-				
-				
+				break;				
 			}
 			case 1:		//Day Mode
 			{	
 				if((Power.Consumers & pc_Fartuk) == 0 )			//Если фартук выключен
-				//if( Light_Status.Fartuk == 0 )
 				{	//Если сработали оба датчика движения - включаем свет на фартуке
 					if((MovSens.Channel[0].Detect == 1) && (MovSens.Channel[1].Detect == 1)) 
-					{	//Light_Status.Fartuk = 1;						
-						Power.Consumers |= pc_Fartuk;							//Включаем флаг фартук
+					{	Power.Consumers |= pc_Fartuk;							//Включаем флаг фартук
 						Led.Channel[0].Target_Bright = Led.Channel[0].Day_Bright;
 						Led.Channel[1].Target_Bright = Led.Channel[1].Day_Bright;		
 						if( Power.Status == 0 ) Led.Channel[0].Delay = Relay_ON_Delay;	
 						else										Led.Channel[0].Delay = 0;
-						//Led.Channel[0].Delay = GetDelayAndPowerON();	
 						Led.Channel[1].Delay = Led.Channel[0].Delay;
 					}
 				}
@@ -401,8 +413,7 @@ int main(void)
 					{
 						//Начинаем выключение фартука
 						Led.Channel[0].Target_Bright = 0;
-						Led.Channel[1].Target_Bright = 0;					
-						//Light_Status.Fartuk = 0;
+						Led.Channel[1].Target_Bright = 0;	
 						Power.Consumers &= (uint8_t) ~pc_Fartuk;	//Выключаем флаг фартук
 					}
 				}

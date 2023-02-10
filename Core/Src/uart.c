@@ -116,6 +116,17 @@ uint8_t UART_Send_uint16(uint16_t Digit)
 	return 0;
 }
 
+//Отправка в UART 5х-значного числа uint16_t (Возврщает 1 при переполнении буфера)
+uint8_t UART_Send_BitsByte(uint8_t Digit)
+{	uint8_t d = 0b10000000;
+	while ( d )
+	{ if( Digit & d ) { if( UART_Send_Chr(&Hex_List[3+2]) )return 1;	}		//1
+		else						{ if( UART_Send_Chr(&Hex_List[3]) )return 1;	}			//0
+		d >>= 1;
+	}
+	return 0;
+}
+
 // Обработчик принятых символов _.-=-.___.-=-.___.-=-.___.-=-.___.-=-.___.-=-.___.-=-.___.-=-.___.-=-.__
 void UART_Buf_Rx_Handler(void)
 {
@@ -192,7 +203,7 @@ void UART_Buf_Rx_Handler(void)
 						
 					break;}	//-----------------------------------------------------------------------
 				
-					case p_Value:	//Поиск ключа по списку Key_List-----------------------------------
+					case p_Value:	//Поиск ключа по списку Hex_List-----------------------------------
 					{
 						Search_Result = SearchChr_in_List( &Uart.RX_Buf.Text[ Uart.RX_Buf.Read_Pos ], &Hex_List[0], &Dec_List_Len, &Msg_Number, &Msg_List_Pos, &Answer_Chr_Count);
 						if((Search_Result == r_Srch_ChrFound) || (Search_Result == r_Srch_Complete))	//Нашли символ из списка Hex_List

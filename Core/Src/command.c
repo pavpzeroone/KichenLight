@@ -8,7 +8,7 @@
 
 //Список команд
 //const uint8_t	Msg_List[]="_#_?_1WIRE DETECT_1WIRE SHOW COUNT_1WIRE SHOW ID_1WIRE WORK_BEAN SEND_BEAN SHOW_BEAN TEST SIGNAL_CAN FILTER SET_CAN SEND_CAN SHOW_CAN TEST SIGNAL_CONNECT_DS18B20 REQUEST_DS18B20 SHOW TEMP_HEATER1_HEATER2_HEATER3_HEATER4_LC DRL DEMO_LC DRL LED_LCD TEMP SHOW_RELAY_RESET_";
-const uint8_t	Msg_List[]="_?_RELAY_LED1_LED2_LED3_LED4_LED5_LED6_VBAT SHOW_VSOLAR SHOW_TIME SHOW_TIME SET_LUXDATA SHOW_";
+const uint8_t	Msg_List[]="_?_DEBUG_LED1_LED2_LED3_LED4_LED5_LED6_LUXDATA_SHOW_RELAY_RESET_TIME_SET_TIME_SHOW_VBAT_SHOW_VSOLAR_SHOW_";
 const uint16_t	Msg_List_Len = sizeof Msg_List;
 
 //Список ключей
@@ -27,6 +27,10 @@ const uint16_t	Answer_List_Len = sizeof Answer_List;
 const uint8_t	Msg_Spacer=0x5F;	//"_" - Символ разделитель слов-команд для базы слов-команд
 const uint8_t	chr_0A = 0x0A;
 const uint8_t	chr_0D = 0x0D;
+const uint8_t	chr_m = 0x6D;
+const uint8_t	chr_L = 0x4C;
+const uint8_t	chr_R = 0x52;
+const uint8_t	chr_C = 0x43;
 
 volatile Command_struct Command;	//Команда с параметрами
 
@@ -115,6 +119,7 @@ uint8_t Command_Write(uint8_t Cmd, uint8_t Key, uint16_t Value)
 		break;}
 				
 		//Для сообщений содержащих ключь
+		case m_DEBUG:
 		case m_VBAT_SHOW:
 		case m_VSOLAR_SHOW:
 		case m_1WIRE_WORK:
@@ -307,8 +312,7 @@ uint8_t Command_Write(uint8_t Cmd, uint8_t Key, uint16_t Value)
 						
 		
 		default: {}
-	}
-	
+	}	
 	
 	return p_Msg;
 }//======================================================================================
@@ -333,6 +337,23 @@ void Command_Exec(void)
 				if((Command.Key==k_0)&&(Command.Key==k_OFF))	{ Relay_OFF; Send_Answer_from_List(m_RELAY, a_OFF); }
 				else 																					{ Relay_ON;	 Send_Answer_from_List(m_RELAY, a_ON);	}
 			break;}//---------------------------------------------------------------			
+			
+			case m_DEBUG:	//Команда вывода переменных для Debug
+			{	switch( Command.Key )
+				{	case k_ON:
+					case k_ENABLE:
+					{	Comm_Task |= t_Debug;												//Включаем режим вывода Debug info
+						Send_Answer_from_List(m_DEBUG, a_ON);				//Формирование ответа
+					break;}
+					
+					case k_OFF:
+					case k_DISABLE:
+					{ Comm_Task &= (uint32_t) ~t_Debug;						//Выключаем режим вывода Debug info
+						Send_Answer_from_List(m_DEBUG, a_OFF);			//Формирование ответа
+					break;}
+				}											
+				break;
+			}
 			
 			case m_TIME_SHOW:	//Команда вывода времени
 			{
@@ -713,6 +734,7 @@ void Command_Exec(void)
 				}
 			break;}			
 		}
+		if( Command.Key == k_END_OF_MSG ) Command.Number = 0;
 		Command.Key = 0;	//Очистка команды
 	}
 }
@@ -841,4 +863,20 @@ uint8_t LuxData_Show(uint16_t* Lux, uint16_t len, uint16_t pos)
 	}
 	//Реинициализация индекса, финализация вывода
 	i = UINT16_MAX; return 0;
+}
+
+void Debug_Show(uint8_t Mode, uint8_t MSensL, uint8_t MSensR, uint8_t Consumers)
+{
+	UART_Send_Chr(&chr_m); 				//m
+	UART_Send_uint16( Mode );
+	UART_Send_Chr(&Hex_List[1]);	//" "
+	UART_Send_Chr(&chr_L); 				//L
+	UART_Send_uint16( MSensL );
+	UART_Send_Chr(&chr_R); 				//R
+	UART_Send_uint16( MSensR );
+	UART_Send_Chr(&Hex_List[1]);	//" "
+	UART_Send_Chr(&chr_C); 				//L
+	UART_Send_BitsByte( Consumers );
+	
+	UART_Send_Chr(&chr_0D);UART_Send_Chr(&chr_0A);	
 }
