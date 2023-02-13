@@ -35,6 +35,15 @@ extern const uint8_t	Hex_List[];
 extern const uint16_t	Hex_List_Len;
 extern const uint16_t	Dec_List_Len;
 
+extern const uint8_t 	NhexChar_spc;
+extern const uint8_t	NhexChar_dot;
+extern const uint8_t	NhexChar_2dot;
+extern const uint8_t	NhexChar_0;
+extern const uint8_t	NhexList_spc;
+extern const uint8_t	NhexList_dot;
+extern const uint8_t	NhexList_2dot;
+extern const uint8_t	NhexList_0;
+
 extern const uint8_t	chr_0A;
 extern const uint8_t	chr_0D;
 
@@ -133,6 +142,8 @@ void Text_From_List( uint8_t *Text, uint8_t *Len, const uint8_t *Comm_Str, char 
 extern uint8_t Command_Write(uint8_t Number, uint8_t Key, uint16_t Value);
 void Command_Exec(void);
 
+uint8_t Send_uint16(uint16_t Digit);
+uint8_t Send_BitsByte(uint8_t Digit);
 void Send_Answer_from_List(uint8_t Msg, uint8_t Key);
 
 void Vbat_Show(uint16_t V);

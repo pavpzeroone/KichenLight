@@ -96,7 +96,7 @@ static void MX_USART3_UART_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	uint32_t 	i;
+	//uint32_t 	i;
 	uint8_t		Mode = 0,
 						Mode_step = 0;
 
@@ -109,6 +109,7 @@ int main(void)
 	Time.Day = 18;
 	Time.Hour = 19;
 	
+	LuxIntegry_Period = Lux_Data_Period;
 	LuxData.Pos = 0;
   /* USER CODE END 1 */
 
@@ -148,14 +149,14 @@ int main(void)
 	TIM_CCxChannelCmd(TIM2,TIM_CHANNEL_1,TIM_CCx_ENABLE);
 	TIM_CCxChannelCmd(TIM2,TIM_CHANNEL_2,TIM_CCx_ENABLE);
 	
-	for(i=0;i<Led_Ch_Cnt;i++)	//Nнициализация начальных значений яркостей Led
+	for(uint8_t i=0;i<Led_Ch_Cnt;i++)	//Nнициализация начальных значений яркостей Led
 	{ 
 		Led.Channel[i].Bright = 0;
 		Led.Channel[i].Target_Bright = 0;
 		Led.Channel[i].Step = 10;
 		Led.Channel[i].Step_Delay = 20;
 		Led.Channel[i].Day_Bright = Bright_Day;
-		Led.Channel[i].Night_Mode = Bright_Night;
+		Led.Channel[i].Night_Bright = Bright_Night;
 		Led.Channel[i].Delay = 0;
 		Set_Led_Bright(i, Led.Channel[i].Bright);
 	}	
@@ -186,17 +187,16 @@ int main(void)
 		
 		//Обработчик вывода переменных для Debug
 		if( Comm_Task & t_Debug )
-		{	static uint8_t _Mode = 0;
+		{	uint8_t ChangeFind = 0;
+			static uint8_t _Mode = 0;
 			static uint8_t _MSensL = 0;
 			static uint8_t _MSensR = 0;
 			static uint8_t _Consumers = 0;
-			if(( _Mode != Mode ) || ( _MSensL != MovSens.Channel[0].Detect ) || ( _MSensR != MovSens.Channel[1].Detect ) || ( _Consumers != Power.Consumers ))
-			{
-				_Mode = Mode;
-				_MSensL = MovSens.Channel[0].Detect;
-				_MSensR = MovSens.Channel[1].Detect;
-				Debug_Show( _Mode, _MSensL, _MSensR, _Consumers );
-			}				
+			if( _Mode != Mode ) { _Mode = Mode; ChangeFind = 1; }
+			if( _MSensL != MovSens.Channel[1].Detect ) { _MSensL = MovSens.Channel[1].Detect; ChangeFind = 1; }
+			if( _MSensR != MovSens.Channel[0].Detect ) { _MSensR = MovSens.Channel[0].Detect; ChangeFind = 1; }
+			if( _Consumers != Power.Consumers ) { _Consumers = Power.Consumers; ChangeFind = 1; }
+			if( ChangeFind ) Debug_Show( _Mode, _MSensL, _MSensR, _Consumers );
 		}
 		
 		//Обработчик вывода массива данных освещенности
@@ -223,7 +223,7 @@ int main(void)
 		}
 		
 		//Обработчик изменения яркости Led
-		for(i=0;i<Led_Ch_Cnt;i++)	{ if( Led.Channel[i].Delay == 0 ) Led.Channel[i].Delay = Led_Prog_Exec(i); }
+		for(uint8_t i=0;i<Led_Ch_Cnt;i++)	{ if( Led.Channel[i].Delay == 0 ) Led.Channel[i].Delay = Led_Prog_Exec(i); }
 		//Принудительное изменение яркости по команде от UART
 		if( ManualLedSw.Led_Nbr ) { Led.Channel[ ManualLedSw.Led_Nbr-1 ].Target_Bright = ManualLedSw.Value; ManualLedSw.Led_Nbr = 0; }
 		
@@ -231,34 +231,31 @@ int main(void)
 		MoveSensL = SensL;	//Считываем состояние портов с датчиков движения
 		MoveSensR = SensR;
 		
-		if( MoveSensL != MoveSensL_ )		//Если изменилось состояное с датчика
+		if( MoveSensL != MoveSensL_ )		//Если изменилось состояние с датчика
 		{ MoveSensL_ = MoveSensL;
 			if( MoveSensL == 1 )				//Датчик сработал
 			{	MovSens.Channel[0].Detect = 1;
 				MovSens.Channel[0].LifeTime = MovSens_Status_ON_Timeout;
 			}
+			//С момента завершения детекции движения начинаем отсчет LifeTime
+			else MovSens.Channel[0].LifeTime = MovSens_Status_OFF_Timeout;
 		}
 		
-		if(MoveSensR != MoveSensR_)		//Если изменилось состояное с датчика
+		if(MoveSensR != MoveSensR_)		//Если изменилось состояние с датчика
 		{ MoveSensR_ = MoveSensR;
 			if( MoveSensR == 1 )				//Датчик сработал
 			{	MovSens.Channel[1].Detect = 1;
 				MovSens.Channel[1].LifeTime = MovSens_Status_ON_Timeout;
 			}
+			//С момента завершения детекции движения начинаем отсчет LifeTime
+			else MovSens.Channel[1].LifeTime = MovSens_Status_OFF_Timeout;
 		}
 				
 		//Обработчик сброса статуса срабатывания датчиков движения
-		for( i=0; i<Mov_Sens_Cnt; i++ )	
-			if( MovSens.Channel[i].LifeTime == 0 ) MovSens.Channel[i].Detect >>= 1; //Обнуление
-//		{ if( MovSens.Channel[i].LifeTime == 0 ) 
-//			{	if( MovSens.Channel[i].Detect == 1)
-//				{
-//					MovSens.Channel[i].Detect = 0;
-//					//MovSens.Channel[i].LifeTime = MovSens_Status_OFF_Timeout;
-//				}
-//				//else MovSens.Channel[i].Delay = MovSens_Status_ON_Timeout; 	
-//			}		
-//		}	// 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	- -	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	
+		for( uint8_t i=0; i<Mov_Sens_Cnt; i++ )	
+			if( MovSens.Channel[i].LifeTime == 0 ) 
+				MovSens.Channel[i].Detect >>= 1; //Обнуление
+		// 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	- -	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	
 
 		//Обработчик включения/выключения питания 220В - - - - - - - - - - - - - - - -
 		if (( Power.Status == 1 )&&( Power.Consumers == 0 )&&( Power.ChangeDelay == 0 ))
@@ -369,6 +366,11 @@ int main(void)
 			{
 				Mode = 4;
 			}
+			
+			if(( Vlsens[0] > vLightSens_Sun ) && ( Mode == 1 ))
+			{
+				Mode = 5;
+			}
 		} // 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	- -	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-
 		
 		switch(Mode)
@@ -408,10 +410,8 @@ int main(void)
 					}
 				}
 				else	//Поддержание работы освещения фартука
-				{
-					if((MovSens.Channel[0].Detect == 0) && (MovSens.Channel[1].Detect == 0)) 
-					{
-						//Начинаем выключение фартука
+				{ if((MovSens.Channel[0].Detect == 0) && (MovSens.Channel[1].Detect == 0)) 
+					{ //Начинаем выключение фартука
 						Led.Channel[0].Target_Bright = 0;
 						Led.Channel[1].Target_Bright = 0;	
 						Power.Consumers &= (uint8_t) ~pc_Fartuk;	//Выключаем флаг фартук
@@ -421,6 +421,10 @@ int main(void)
 			}
 			case 2:		//Переход в Night Mode
 			{
+				if( Power.Consumers & pc_Fartuk )			//Если фартук включен				
+				{ Led.Channel[0].Target_Bright = Led.Channel[0].Night_Bright;
+					Led.Channel[1].Target_Bright = Led.Channel[1].Night_Bright;		
+				}
 				Mode++;
 				break;
 			}			
@@ -450,9 +454,24 @@ int main(void)
 			}
 			case 4:		//Переход в Day Mode
 			{
+				if( Power.Consumers & pc_Fartuk )			//Если фартук включен				
+				{
+					Led.Channel[0].Target_Bright = Led.Channel[0].Day_Bright;
+					Led.Channel[1].Target_Bright = Led.Channel[1].Day_Bright;		
+				}
 				Mode = 1;
 				break;
 			}	
+			case 5:		//Sun mode
+			{ if((Power.Consumers & pc_Fartuk) == 1 )			//Если фартук включен				
+					if((MovSens.Channel[0].Detect == 0) && (MovSens.Channel[1].Detect == 0)) 
+					{	//Начинаем выключение фартука
+						Led.Channel[0].Target_Bright = 0;
+						Led.Channel[1].Target_Bright = 0;											
+						Power.Consumers &= (uint8_t) ~pc_Fartuk;	//Выключаем флаг фартук
+					}
+				break;
+			}
 		}
 		
 		
@@ -873,24 +892,17 @@ uint32_t Led_Prog_Exec(char i)
 }
 
 void LuxHandler(uint16_t Lux)
-{
-	static uint16_t Lux_data[500];
-	static uint16_t index = 0;
-	static uint16_t count = 0;
-	static uint16_t step = 0;
+{	static uint16_t step = 0;
 	
 	if(LuxIntegry_Period == 0)
 	{	//Если время периода вышло переходим к следующей ячейке
-		if(++index == 500) index = 0;
-		if(++count > 500) count = 500;
+		LuxIntegry_Period = Lux_Data_Period;
+		if(++LuxData.Pos == Lux_Data_Len) LuxData.Pos = 0;
 		step = 0;
 	}
-	
-	if(step == 0) Lux_data[index] = Lux;
-	else
-	{ //Заносим усредненное значение в массив
-		Lux_data[index] = (int32_t)( Lux_data[index] + Lux ) / 2;
-	}
+		//Заносим усредненное значение в массив
+	if(step == 0) LuxData.Data[LuxData.Pos] = Lux;
+	else LuxData.Data[LuxData.Pos] = (int32_t)( LuxData.Data[LuxData.Pos] + Lux ) / 2;
 	step++;
 }
 
@@ -956,41 +968,6 @@ void Time_Set (uint16_t Year, uint16_t Month, uint16_t Day, uint16_t Hour, uint1
 							Time.Second = ManualTime.Second;
 						}
 }
-
-//Функция включения статусов питания и возврата задержки для ожидания стабилизации напряжения после включения
-//Action: 0 - OFF
-//				1 - ON
-//uint32_t PowerSet_DelayGet(uint32_t Initiator, char Action)
-//{	//Режим включения
-//	if( Action == 1)
-//	{	//Если режим ВКЛючения и потребитель уже включен
-//		if( Power.Consumers & Initiator ) return 0;
-//		else
-//		{ //Если потребитель не включен
-//			Power.Consumers |= Initiator;				//Включаем потребителя
-//			if( Power.Status == 1 ) return 0;
-//			else
-//			{
-//				Power.Status = 1;
-//				Power.Change = 1;
-//				//Relay_ON;
-//				return Rel_ON_Delay;
-//			}
-//		}
-//	}
-//		//Режим выключения
-//	else
-//	{ //Если режим ВЫКЛючения и потребитель включен
-//		if( Power.Consumers & Initiator ) 
-//		{
-//			Power.Consumers &= (uint32_t) ~Initiator;	//Выключаем потребителя
-//			if( Power.Status == 1 )
-//			{
-//				Power.LifeTime = Delay_Normal_Power_OFF;
-//			}
-//		}
-//	}
-//}
 
 void TimingDelay_Decrement(void)
 { char i;

@@ -8,7 +8,7 @@
 
 //Список команд
 //const uint8_t	Msg_List[]="_#_?_1WIRE DETECT_1WIRE SHOW COUNT_1WIRE SHOW ID_1WIRE WORK_BEAN SEND_BEAN SHOW_BEAN TEST SIGNAL_CAN FILTER SET_CAN SEND_CAN SHOW_CAN TEST SIGNAL_CONNECT_DS18B20 REQUEST_DS18B20 SHOW TEMP_HEATER1_HEATER2_HEATER3_HEATER4_LC DRL DEMO_LC DRL LED_LCD TEMP SHOW_RELAY_RESET_";
-const uint8_t	Msg_List[]="_?_DEBUG_LED1_LED2_LED3_LED4_LED5_LED6_LUXDATA_SHOW_RELAY_RESET_TIME_SET_TIME_SHOW_VBAT_SHOW_VSOLAR_SHOW_";
+const uint8_t	Msg_List[]="_?_DEBUG_LED1_LED2_LED3_LED4_LED5_LED6_LUXDATA SHOW_RELAY_RESET_TIME SET_TIME SHOW_VBAT SHOW_VSOLAR SHOW_";
 const uint16_t	Msg_List_Len = sizeof Msg_List;
 
 //Список ключей
@@ -16,9 +16,18 @@ const uint8_t	Key_List[]="_0_1_DISABLE_ENABLE_OFF_ON_";
 const uint16_t	Key_List_Len = sizeof Key_List;
 
 //Список Hex зачений
-const uint8_t	Hex_List[]="_ _0_1_2_3_4_5_6_7_8_9_A_B_C_D_E_F_._:_";
+//const uint8_t	Hex_List[]="_ _0_1_2_3_4_5_6_7_8_9_A_B_C_D_E_F_._:_";
+const uint8_t	Hex_List[]="_ _._:_0_1_2_3_4_5_6_7_8_9_A_B_C_D_E_F_";
 const uint16_t	Hex_List_Len = sizeof Hex_List;
-const uint16_t	Dec_List_Len = 23;
+const uint16_t	Dec_List_Len = 23+4;
+const uint8_t NhexChar_spc = 1;
+const uint8_t	NhexChar_dot = 3;
+const uint8_t	NhexChar_2dot = 5;
+const uint8_t	NhexChar_0 = 7;
+const uint8_t	NhexList_spc = 1;
+const uint8_t	NhexList_dot = 2;
+const uint8_t	NhexList_2dot = 3;
+const uint8_t	NhexList_0 = 4;
 
 //Список ответов
 const uint8_t	Answer_List[]="_DISABLE_ENABLE_ERROR_OFF_OK_ON_";
@@ -93,16 +102,16 @@ uint8_t Command_Write(uint8_t Cmd, uint8_t Key, uint16_t Value)
 				case 0: step++; return p_HexValue; break;
 				case 1:
 				{	//Найден " " из списка HexValue
-					if(Value == 1) { step++; ManualLedSw.Value = 0; return p_Value; }	
+					if(Value == NhexList_spc) { step++; ManualLedSw.Value = 0; return p_Value; }	
 					else return p_Msg;
 					break;
 				}
 				case 2:
 				{ //Найдены "0-9" из списка HexValue
-					if(( Value > 1 ) && ( Value < 12 )) 
+					if(( Value >= NhexList_0 ) && ( Value < (NhexList_0+10) )) 
 					{
 						ManualLedSw.Value = ManualLedSw.Value * 10;
-						ManualLedSw.Value += Value - 2; 
+						ManualLedSw.Value += Value - NhexList_0; 
 						return p_Value;
 					}
 					else return p_Msg;
@@ -144,69 +153,69 @@ uint8_t Command_Write(uint8_t Cmd, uint8_t Key, uint16_t Value)
 				case 0: step++; return p_HexValue; break;
 				case 1:
 				{	//Найден " " из списка HexValue
-					if( Value == 1 ) { step++; ManualTime.Year = 0; return p_Value; }	
+					if(Value == NhexList_spc) { step++; ManualTime.Year = 0; return p_Value; }	
 					else return p_Msg;
 				break;}
 				case 2:	//Ищем Год
 				{ //Найдены "0-9" из списка HexValue
-					if(( Value > 1 ) && ( Value < 12 )) 
+					if(( Value >= NhexList_0 ) && ( Value < (NhexList_0+10) )) 
 					{ ManualTime.Year = ManualTime.Year * 10;
-						ManualTime.Year += Value - 2; 
+						ManualTime.Year += Value - NhexList_0; 
 						return p_Value;
 					}
 					else //Найден "." из списка HexValue
-						if( Value == 35 ) { step++; ManualTime.Month = 0; return p_Value; }
+						if( Value == NhexList_dot ) { step++; ManualTime.Month = 0; return p_Value; }
 						else return p_Msg;
 				break;}
 				case 3:	//Ищем Месяц
 				{ //Найдены "0-9" из списка HexValue
-					if(( Value > 1 ) && ( Value < 12 )) 
+					if(( Value >= NhexList_0 ) && ( Value < (NhexList_0+10) )) 
 					{ ManualTime.Month = ManualTime.Month * 10;
-						ManualTime.Month += Value - 2; 
+						ManualTime.Month += Value - NhexList_0; 
 						return p_Value;
 					}
 					else //Найден "." из списка HexValue
-						if( Value == 35 ) { step++; ManualTime.Day = 0; return p_Value; }
+						if( Value == NhexList_dot ) { step++; ManualTime.Day = 0; return p_Value; }
 						else return p_Msg;
 				break;}
 				case 4:	//Ищем День
 				{ //Найдены "0-9" из списка HexValue
-					if(( Value > 1 ) && ( Value < 12 )) 
+					if(( Value >= NhexList_0 ) && ( Value < (NhexList_0+10) ))  
 					{ ManualTime.Day = ManualTime.Day * 10;
-						ManualTime.Day += Value - 2; 
+						ManualTime.Day += Value - NhexList_0; 
 						return p_Value;
 					}
 					else //Найден " " из списка HexValue
-						if( Value == 1 ) { step++; ManualTime.Hour = 0; return p_Value; }
+						if(Value == NhexList_spc) { step++; ManualTime.Hour = 0; return p_Value; }
 						else return p_Msg;
 				break;}
 				case 5:	//Ищем Час
 				{ //Найдены "0-9" из списка HexValue
-					if(( Value > 1 ) && ( Value < 12 )) 
+					if(( Value >= NhexList_0 ) && ( Value < (NhexList_0+10) )) 
 					{ ManualTime.Hour = ManualTime.Hour * 10;
-						ManualTime.Hour += Value - 2; 
+						ManualTime.Hour += Value - NhexList_0; 
 						return p_Value;
 					}
 					else //Найден ":" из списка HexValue
-						if( Value == 37 ) { step++; ManualTime.Minute = 0; return p_Value; }
+						if( Value == NhexList_2dot ) { step++; ManualTime.Minute = 0; return p_Value; }
 						else return p_Msg;
 				break;}	
 				case 6:	//Ищем Минуты
 				{ //Найдены "0-9" из списка HexValue
-					if(( Value > 1 ) && ( Value < 12 )) 
+					if(( Value >= NhexList_0 ) && ( Value < (NhexList_0+10) )) 
 					{ ManualTime.Minute = ManualTime.Minute * 10;
-						ManualTime.Minute += Value - 2; 
+						ManualTime.Minute += Value - NhexList_0; 
 						return p_Value;
 					}
 					else //Найден ":" из списка HexValue
-						if( Value == 37 ) { step++; ManualTime.Second = 0; return p_Value; }
+						if( Value == NhexList_2dot ) { step++; ManualTime.Second = 0; return p_Value; }
 						else return p_Msg;
 				break;}			
 				case 7:	//Ищем Секунды
 				{ //Найдены "0-9" из списка HexValue
-					if(( Value > 1 ) && ( Value < 12 )) 
+					if(( Value >= NhexList_0 ) && ( Value < (NhexList_0+10) ))  
 					{ ManualTime.Second = ManualTime.Second * 10;
-						ManualTime.Second += Value - 2; 
+						ManualTime.Second += Value - NhexList_0; 
 						return p_Value;
 					}
 					else return p_Msg;
@@ -790,6 +799,32 @@ void Text_From_List( uint8_t *Text, uint8_t *Len, const uint8_t *Comm_Str, char 
 	}
 }
 
+//Отправка в UART 5х-значного числа uint16_t (Возврщает 1 при переполнении буфера)
+uint8_t Send_uint16(uint16_t Digit)
+{	uint8_t d0 = (uint16_t) Digit/10000; Digit -= d0*10000;
+	uint8_t d1 = (uint16_t) Digit/1000;	Digit -= d1*1000;
+	uint8_t d2 = (uint16_t) Digit/100;	Digit -= d2*100;
+	uint8_t d3 = (uint16_t) Digit/10;	Digit -= d3*10;
+	
+	if(d0)							{	if( UART_Send_Chr(&Hex_List[NhexChar_0+2*d0]) )return 1;	}			//1-й разряд
+	if(d0||d1) 					{	if( UART_Send_Chr(&Hex_List[NhexChar_0+2*d1]) )return 1;	}			//2-й
+	if(d0||d1||d2) 			{	if( UART_Send_Chr(&Hex_List[NhexChar_0+2*d2]) )return 1;	}			//3-й
+	if(d0||d1||d2||d3) 	{	if( UART_Send_Chr(&Hex_List[NhexChar_0+2*d3]) )return 1;	}			//4-й
+												if( UART_Send_Chr(&Hex_List[NhexChar_0+2*Digit]) )return 1;		//5-й последний
+	return 0;
+}
+
+//Отправка в UART 5х-значного числа uint16_t (Возврщает 1 при переполнении буфера)
+uint8_t Send_BitsByte(uint8_t Digit)
+{	uint8_t d = 0b10000000;
+	while ( d )
+	{ if( Digit & d ) { if( UART_Send_Chr(&Hex_List[ NhexChar_0+2 ]) )return 1;	}		//1
+		else						{ if( UART_Send_Chr(&Hex_List[ NhexChar_0 ]) )return 1;	}			//0
+		d >>= 1;
+	}
+	return 0;
+}
+
 void Send_Answer_from_List(uint8_t Msg, uint8_t Key)
 {	volatile uint8_t const* S;   
 	//Формирование ответа	
@@ -808,7 +843,7 @@ void Vbat_Show(uint16_t V)
 	//UART_Send_Chr( &chr_0D );UART_Send_Chr( &chr_0A );	
 	S = get_StrFromList( Msg_List, m_VBAT_SHOW );
 	UART_Send_Str( S, 5 );
-	UART_Send_uint16(V);
+	Send_uint16(V);
 	UART_Send_Chr( &chr_0D );UART_Send_Chr( &chr_0A );	
 }
 
@@ -818,7 +853,7 @@ void Vsolar_Show(uint16_t V)
 	//UART_Send_Chr( &chr_0D );UART_Send_Chr( &chr_0A );	
 	S = get_StrFromList( Msg_List, m_VSOLAR_SHOW );
 	UART_Send_Str( S, 7 );
-	UART_Send_uint16(V);
+	Send_uint16(V);
 	UART_Send_Chr( &chr_0D );UART_Send_Chr( &chr_0A );
 }
 
@@ -827,22 +862,22 @@ void Time_Show(int16_t Year, uint16_t Month, uint16_t Day, uint16_t Hour, uint16
 	//Формирование ответа в формате YYYY.MM.DD HH:MM:SS
 	//UART_Send_Chr(&chr_0D);UART_Send_Chr(&chr_0A);
 	
-	UART_Send_uint16(Year);
-	UART_Send_Chr(&Hex_List[35]);									//.
-	if( Month < 10 ) UART_Send_Chr(&Hex_List[3]); //Ноль
-	UART_Send_uint16(Month);
-	UART_Send_Chr(&Hex_List[35]);									//.
-	if( Day < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
-	UART_Send_uint16(Day);
-	UART_Send_Chr(&Hex_List[1]);									//" "
-	if( Hour < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
-	UART_Send_uint16(Hour);
-	UART_Send_Chr(&Hex_List[37]);									//:
-	if( Minute < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
-	UART_Send_uint16(Minute);
-	UART_Send_Chr(&Hex_List[37]);									//:
-	if( Second < 10 ) UART_Send_Chr(&Hex_List[3]); 	//Ноль
-	UART_Send_uint16(Second);
+	Send_uint16(Year);
+	UART_Send_Chr(&Hex_List[NhexChar_dot]);									//.
+	if( Month < 10 ) UART_Send_Chr(&Hex_List[NhexChar_0]); 	//Ноль
+	Send_uint16(Month);
+	UART_Send_Chr(&Hex_List[NhexChar_dot]);									//.
+	if( Day < 10 ) UART_Send_Chr(&Hex_List[NhexChar_0]); 		//Ноль
+	Send_uint16(Day);
+	UART_Send_Chr(&Hex_List[NhexChar_spc]);									//" "
+	if( Hour < 10 ) UART_Send_Chr(&Hex_List[NhexChar_0]); 		//Ноль
+	Send_uint16(Hour);
+	UART_Send_Chr(&Hex_List[NhexChar_2dot]);									//:
+	if( Minute < 10 ) UART_Send_Chr(&Hex_List[NhexChar_0]); 	//Ноль
+	Send_uint16(Minute);
+	UART_Send_Chr(&Hex_List[NhexChar_2dot]);									//:
+	if( Second < 10 ) UART_Send_Chr(&Hex_List[NhexChar_0]); 	//Ноль
+	Send_uint16(Second);
 	
 	UART_Send_Chr(&chr_0D);UART_Send_Chr(&chr_0A);
 }
@@ -856,8 +891,8 @@ uint8_t LuxData_Show(uint16_t* Lux, uint16_t len, uint16_t pos)
 	
 	while(( Lux[i] > 0 )&&( i != UINT16_MAX ))
 	{
-		if( UART_Send_uint16( Lux[i] ) == 1 ) return 1;
-		if( UART_Send_Chr(&Hex_List[1]) == 1 )return 1;
+		if( Send_uint16( Lux[i] ) == 1 ) return 1;
+		if( UART_Send_Chr(&Hex_List[NhexChar_spc]) == 1 )return 1;
 		if( i == 0 ) i = len-1;
 		if( i == pos ) i = UINT16_MAX;
 	}
@@ -867,16 +902,16 @@ uint8_t LuxData_Show(uint16_t* Lux, uint16_t len, uint16_t pos)
 
 void Debug_Show(uint8_t Mode, uint8_t MSensL, uint8_t MSensR, uint8_t Consumers)
 {
-	UART_Send_Chr(&chr_m); 				//m
-	UART_Send_uint16( Mode );
-	UART_Send_Chr(&Hex_List[1]);	//" "
-	UART_Send_Chr(&chr_L); 				//L
-	UART_Send_uint16( MSensL );
-	UART_Send_Chr(&chr_R); 				//R
-	UART_Send_uint16( MSensR );
-	UART_Send_Chr(&Hex_List[1]);	//" "
-	UART_Send_Chr(&chr_C); 				//L
-	UART_Send_BitsByte( Consumers );
+	UART_Send_Chr(&chr_m); 								//m
+	Send_uint16( Mode );
+	UART_Send_Chr(&Hex_List[NhexChar_spc]);	//" "
+	UART_Send_Chr(&chr_L); 								//L
+	Send_uint16( MSensL );
+	UART_Send_Chr(&chr_R); 								//R
+	Send_uint16( MSensR );
+	UART_Send_Chr(&Hex_List[NhexChar_spc]);	//" "
+	UART_Send_Chr(&chr_C); 								//L
+	Send_BitsByte( Consumers );
 	
 	UART_Send_Chr(&chr_0D);UART_Send_Chr(&chr_0A);	
 }

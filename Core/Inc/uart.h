@@ -204,8 +204,7 @@ void UART_Buf_Rx_Handler(void);
 void UART_Tx_Handler(UART_HandleTypeDef *huart);
 uint8_t UART_Send_Chr(uint8_t const* Chr);
 uint8_t	UART_Send_Str(uint8_t const *Str, uint8_t Size);
-uint8_t UART_Send_uint16(uint16_t Digit);
-uint8_t UART_Send_BitsByte(uint8_t Digit);
+
 //void UART_Send_Time(int16_t Year, uint16_t Month, uint16_t Day, uint16_t Hour, uint16_t Minute, uint16_t Second);
 //unsigned int DBG_Handler(void);
 //void DBG_Send_Command(char Command_Number, char Param_Number);
