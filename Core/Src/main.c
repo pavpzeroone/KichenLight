@@ -165,11 +165,7 @@ int main(void)
 	Power.ChangeFlag = 0;
 	Power.Consumers = 0;
 	Power.ChangeDelay = 0;
-	//Light_Status.Fartuk = 0;
-	//Light_Status.Floor = 0;
-	//Light_Status.Cabinet = 0;
-	
-	//HAL_UART_Receive_IT (uart, &buf, 1); // запуск приема UART
+
 	UART_Rx_Start(Used_uart);
   /* USER CODE END 2 */
 
@@ -177,11 +173,13 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Main cycle ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   {	
-		//Обработчик UART
-		//HAL_UART_RxCpltCallback(uart);
-		UART_Buf_Rx_Handler();					//Обработчик полученного по UART буфера
-		UART_Tx_Handler(Used_uart);			//Обработчик отправки кольцевого буфера
+		//Обработчик часов
+		if( Time.Tik ) Clock_Handler();		
 		
+		//Обработчик UART
+		UART_Rx_Handler();							//Обработчик полученного по UART буфера
+		UART_Tx_Handler(Used_uart);			//Обработчик отправки кольцевого буфера
+	
 		//Запуск исполнителя команд получаемых по UART
 		Command_Exec();
 		
@@ -201,22 +199,15 @@ int main(void)
 		
 		//Обработчик вывода массива данных освещенности
 		if( Comm_Task & t_LuxData_Show )
-		{
 			if( LuxData_Show(LuxData.Data, Lux_Data_Len, LuxData.Pos) == 0 ) Comm_Task &= (uint32_t) ~t_LuxData_Show;			//Выключаем разовай вывод освещенности
-		}
-		
-		//Обработчик часов
-		if( Time.Tik )Clock_Handler();
 		
 		if( Comm_Task & t_Time_Show )
-		{
-			Comm_Task &= (uint32_t) ~t_Time_Show;			//Выключаем разовай вывод времени
+		{ Comm_Task &= (uint32_t) ~t_Time_Show;			//Выключаем разовай вывод времени
 			Time_Show(Time.Year, Time.Month, Time.Day, Time.Hour, Time.Minute, Time.Second);
 		}
 		
 		if( Comm_Task & t_Time_Set )
-		{
-			Comm_Task &= (uint32_t) ~t_Time_Set;			//Выключаем разовай вывод времени
+		{ Comm_Task &= (uint32_t) ~t_Time_Set;			//Выключаем разовай вывод времени
 			//if( isValid_DataTime ( ManualTime.Year
 			Time_Set(ManualTime.Year, ManualTime.Month, ManualTime.Day, ManualTime.Hour, ManualTime.Minute, ManualTime.Second);
 			Comm_Task |= t_Time_Show;													//Включаем разовый показ времени
@@ -281,8 +272,7 @@ int main(void)
 		
 		//Обработчик АЦП (считывание показаний Напряжения батареи и датчика света)
 		if( ADC_Delay == 0 )
-		{
-			switch(ADC_Step)
+		{ switch(ADC_Step)
 			{
 				case 0:	//Запуск измерения
 				{	HAL_ADCEx_InjectedStart_IT(&hadc1);
@@ -307,8 +297,7 @@ int main(void)
 					break;
 				}
 				case 2:	//Измерения готовы
-				{
-					Vbat[3]	= HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_1);
+				{ Vbat[3]	= HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_1);
 					Vlsens[2] = 	HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_2);
 					ADC_Step = 0;
 					ADC_Delay = 1990;//60000;					
@@ -325,8 +314,7 @@ int main(void)
 		if( Vbat[3] )
 		{	//Вычисляем усредненное значение для Vbat[0], сдвигаем старые значения
 			for(uint16_t i=1; i<=3; i++)
-			{
-				Vbat[0] >>= 1;
+			{ Vbat[0] >>= 1;
 				Vbat[0] += Vbat[i]>>1;				
 			}
 			Vbat[1] = Vbat[2];
@@ -357,20 +345,11 @@ int main(void)
 			LuxHandler(Vlsens[0]);			//Обработчик значений освещенности
 			
 			//Обработчик смены режина работы День/Ночь
-			if(( Vlsens[0] < vLightSens_Night ) && ( Mode == 1 ))
-			{
-				Mode = 2;
-			}
+			if(( Vlsens[0] < vLightSens_Night ) && ( Mode == 1 )) Mode = 2;			
+			if(( Vlsens[0] > vLightSens_Day ) && ( Mode == 3 ))		Mode = 4;			
+			if(( Vlsens[0] > vLightSens_Sun ) && ( Mode == 1 ))		Mode = 5;
+			if(( Vlsens[0] < (vLightSens_Sun - 100) ) && ( Mode == 5 ))	Mode = 4;
 			
-			if(( Vlsens[0] > vLightSens_Day ) && ( Mode == 3 ))
-			{
-				Mode = 4;
-			}
-			
-			if(( Vlsens[0] > vLightSens_Sun ) && ( Mode == 1 ))
-			{
-				Mode = 5;
-			}
 		} // 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	- -	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-
 		
 		switch(Mode)
@@ -378,18 +357,13 @@ int main(void)
 			case 0:		//Start Mode
 			{
 				switch(Mode_step)
-				{
-					case 0:
-					{
-//						Relay_ON;
-//						i = SensL;
-						Mode_step++;
+				{ case 0:
+					{ Mode_step++;
 						Mode_step = 10;
 						break;
 					}
 					case 10:
-					{
-						Mode_step = 0;
+					{ Mode_step = 0;
 						Mode++;
 						break;
 					}
@@ -397,8 +371,7 @@ int main(void)
 				break;				
 			}
 			case 1:		//Day Mode
-			{	
-				if((Power.Consumers & pc_Fartuk) == 0 )			//Если фартук выключен
+			{	if((Power.Consumers & pc_Fartuk) == 0 )			//Если фартук выключен
 				{	//Если сработали оба датчика движения - включаем свет на фартуке
 					if((MovSens.Channel[0].Detect == 1) && (MovSens.Channel[1].Detect == 1)) 
 					{	Power.Consumers |= pc_Fartuk;							//Включаем флаг фартук
@@ -420,8 +393,7 @@ int main(void)
 				break;
 			}
 			case 2:		//Переход в Night Mode
-			{
-				if( Power.Consumers & pc_Fartuk )			//Если фартук включен				
+			{ if( Power.Consumers & pc_Fartuk )			//Если фартук включен				
 				{ Led.Channel[0].Target_Bright = Led.Channel[0].Night_Bright;
 					Led.Channel[1].Target_Bright = Led.Channel[1].Night_Bright;		
 				}
@@ -429,8 +401,7 @@ int main(void)
 				break;
 			}			
 			case 3:		//Night Mode
-			{
-				if((Power.Consumers & pc_Fartuk) == 0 )			//Если фартук выключен				
+			{ if((Power.Consumers & pc_Fartuk) == 0 )			//Если фартук выключен				
 				{	//Если сработали оба датчика движения - включаем свет на фартуке
 					if((MovSens.Channel[0].Detect == 1) && (MovSens.Channel[1].Detect == 1)) 
 					{	Power.Consumers |= pc_Fartuk;							//Включаем флаг фартук
@@ -442,8 +413,7 @@ int main(void)
 					}
 				}
 				else	//Поддержание работы освещения фартука
-				{
-					if((MovSens.Channel[0].Detect == 0) && (MovSens.Channel[1].Detect == 0)) 
+				{ if((MovSens.Channel[0].Detect == 0) && (MovSens.Channel[1].Detect == 0)) 
 					{	//Начинаем выключение фартука
 						Led.Channel[0].Target_Bright = 0;
 						Led.Channel[1].Target_Bright = 0;											
@@ -453,8 +423,7 @@ int main(void)
 				break;
 			}
 			case 4:		//Переход в Day Mode
-			{
-				if( Power.Consumers & pc_Fartuk )			//Если фартук включен				
+			{ if( Power.Consumers & pc_Fartuk )			//Если фартук включен				
 				{
 					Led.Channel[0].Target_Bright = Led.Channel[0].Day_Bright;
 					Led.Channel[1].Target_Bright = Led.Channel[1].Day_Bright;		
@@ -473,7 +442,6 @@ int main(void)
 				break;
 			}
 		}
-		
 		
     /* USER CODE END WHILE */
 
@@ -869,7 +837,6 @@ uint32_t Led_Prog_Exec(char i)
 	if(Led.Channel[i].Bright != Led.Channel[i].Target_Bright)	//Если целевая яркость не достигнута -----------
 	{	//Nзменяем текущую яркость Led	
 		if( Led.Channel[i].Target_Bright > Led.Channel[i].Bright )
-		
 		{	if( (Led.Channel[i].Bright + Led.Channel[i].Step) >= Led.Channel[i].Target_Bright ) Led.Channel[i].Bright = Led.Channel[i].Target_Bright;
 			else Led.Channel[i].Bright += Led.Channel[i].Step;
 		}
@@ -877,21 +844,15 @@ uint32_t Led_Prog_Exec(char i)
 		{	if( Led.Channel[i].Bright <= Led.Channel[i].Step ) Led.Channel[i].Bright = 0;
 			else Led.Channel[i].Bright -= Led.Channel[i].Step;
 		}
-		
 		Set_Led_Bright(i, Led.Channel[i].Bright);
-
 		a = Led.Channel[i].Step_Delay;
 	}
 	else														//????? ????????? ? ?????????? ???? ????????? ------------------------------
-	{
-		//a = 0xFFFF;
 		a = Led.Channel[i].Step_Delay;
-	}
-	
 	return a;
 }
 
-void LuxHandler(uint16_t Lux)
+void LuxHandler(uint16_t Lux)		//Обработка значений с датчика света и занесение данных в массив
 {	static uint16_t step = 0;
 	
 	if(LuxIntegry_Period == 0)
@@ -900,7 +861,7 @@ void LuxHandler(uint16_t Lux)
 		if(++LuxData.Pos == Lux_Data_Len) LuxData.Pos = 0;
 		step = 0;
 	}
-		//Заносим усредненное значение в массив
+	//Заносим усредненное значение в массив
 	if(step == 0) LuxData.Data[LuxData.Pos] = Lux;
 	else LuxData.Data[LuxData.Pos] = (int32_t)( LuxData.Data[LuxData.Pos] + Lux ) / 2;
 	step++;
@@ -969,7 +930,7 @@ void Time_Set (uint16_t Year, uint16_t Month, uint16_t Day, uint16_t Hour, uint1
 						}
 }
 
-void TimingDelay_Decrement(void)
+void TimingDelay_Decrement(void)		//Обработчик таймеров каждум 1мс
 { char i;
 	
 	for(i=0;i<Led_Ch_Cnt;i++) { if( Led.Channel[i].Delay ) Led.Channel[i].Delay--; }
@@ -978,7 +939,7 @@ void TimingDelay_Decrement(void)
 	if( Power.ChangeDelay ) Power.ChangeDelay--;
 	if( Charger_Delay ) Charger_Delay--;
 	if( LuxIntegry_Period ) LuxIntegry_Period--;
-	if( Time.Delay ) Time.Delay--; else { Time.Delay = 1000; Time.Tik = 1; }
+	if( Time.Delay ) Time.Delay--; else { Time.Delay = 1000 + Time_correction; Time.Tik = 1; }
 	
 	#ifdef DBG_USART
 		if( TimingDelay_DBG_Temp ) TimingDelay_DBG_Temp--;

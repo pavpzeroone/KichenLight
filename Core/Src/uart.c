@@ -9,56 +9,18 @@ Uart_struct	Uart;
 //Переменные поиска ответов из списка
 char Answer_Str_Pos;
 
-
 //Запуск приема UART с прерыванием по окончанию приёма
 void UART_Rx_Start(UART_HandleTypeDef *huart)
-{
-	HAL_UART_Receive_IT ( huart, &Uart.RX_Buf.Text[Uart.RX_Buf.Write_Pos], 1); // запуск приема UART
+{ HAL_UART_Receive_IT ( huart, &Uart.RX_Buf.Text[Uart.RX_Buf.Write_Pos], 1); // запуск приема UART
 }
 
-//Обработка окончания приёма UART (Включаем прием в селдующую ячейку буфера)
+//Обработка окончания приёма UART (Включаем прием в следующую ячейку буфера)
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) 
-{
-	if( ++Uart.RX_Buf.Write_Pos == RX_Buf_Len ) Uart.RX_Buf.Write_Pos = 0;
+{ if( ++Uart.RX_Buf.Write_Pos == RX_Buf_Len ) Uart.RX_Buf.Write_Pos = 0;
 	HAL_UART_Receive_IT ( huart, &Uart.RX_Buf.Text[Uart.RX_Buf.Write_Pos], 1); // запуск приема UART
-	
-/*  if(huart == Used_uart) {
-
-//    if( firstByteWait != 0 ) {
-//      // пришел первый байт
-//      firstByteWait=0;
-//      HAL_UART_Receive_IT (&huart1, buf+1, 2); // запуск приема остальных байтов команды
-//    }
-//    else {
-//      // принят весь пакет (3 байта)
-//      // проверка команды
-//      if ( (buf[0] == 0x10) && ((buf[0] ^ buf[1] ^ 0xe5) == buf[2]) ) {
-//        // команда принята правильно
-
-//        // подсчет контрольного кода ответа
-//        uint16_t sum= 0;
-//        for (uint16_t i=0; i<10; i++) sum += * ((uint8_t *)(& par) + i);
-//        par.s = sum ^ 0xa1e3;
-
-//        // ответ на компьютер
-//        HAL_UART_Transmit_IT(&huart1, (uint8_t *)(& par), 12);
-
-//        // запуск приема
-//        buf[0]=0; buf[1]=0; buf[2]=0;
-//        firstByteWait=1;
-//        HAL_UART_Receive_IT (&huart1, buf, 1);
-//      }
-//      else {
-//        // ошибка
-//        buf[0]=0; buf[1]=0; buf[2]=0;
-//        firstByteWait=1;
-//        HAL_UART_Receive_IT (&huart1, buf, 1); // запуск приема
-//      }
-//    }
-//  }*/
 }
 
-//Обработка окончания отправки данных в Uart через DMA
+//Обработка окончания отправки данных в Uart через прерывания или DMA
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {// завершена передача всех данных
    Uart.TX_Busy = 0;
@@ -87,8 +49,7 @@ void UART_Tx_Handler(UART_HandleTypeDef *huart)
 
 //Отправка одного символа в буфер передачи UART (Возврщает 1 при переполнении буфера)
 uint8_t UART_Send_Chr(const uint8_t *Chr)
-{
-	Uart.TX_Buf.Text[Uart.TX_Buf.Write_Pos++] = *Chr;
+{ Uart.TX_Buf.Text[Uart.TX_Buf.Write_Pos++] = *Chr;
 	if( Uart.TX_Buf.Write_Pos == TX_Buf_Len ) Uart.TX_Buf.Write_Pos = 0;
 	if( Uart.TX_Buf.Write_Pos == Uart.TX_Buf.Read_Pos ) return 1;								//Возвращаем флаг переполнения буфера
 	return 0;																																		//Возвращаем флаг нормального завершения
@@ -102,9 +63,8 @@ uint8_t	UART_Send_Str(uint8_t const *Str, uint8_t Size)
 }
 
 // Обработчик принятых символов _.-=-.___.-=-.___.-=-.___.-=-.___.-=-.___.-=-.___.-=-.___.-=-.___.-=-.__
-void UART_Buf_Rx_Handler(void)
-{
-	static Find_type Detect_Msg = Find_None;
+void UART_Rx_Handler(void)
+{ static Find_type Detect_Msg = Find_None;
 	static char Search_Mode;
 	
 	static char Answer_Chr_Count;

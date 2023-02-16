@@ -71,6 +71,7 @@ extern "C" {
 #define Lux_Data_Period							600000	//Время между занесениями в массив данных значения освещенности (600 000 = 10 мин)
 #define Lux_Data_Len								500			//Количество элементов массива сбора освещенности
 
+#define Time_correction							-5			//Корректировка времени в милисекундах на секунду
 //extern Uart_struct	Uart;
 
 typedef struct
@@ -98,15 +99,11 @@ typedef struct
 	volatile uint32_t	Delay;					//Задержка до обработки яркости канала
 	
 	volatile int			Step;						//Nнкремент(декремент) яркости за шаг
-//	volatile char			Step_Direction;	//Направление повышение/понижение яркости (1-?+ , 0-?-)
 	volatile uint32_t	Step_Delay;			//Задержка до следуюшего шага изменения яркости
 	
 	volatile uint16_t	Day_Bright;			//Яркость по умолчанию для дневного времени
-	//volatile char			Day_Mode;				//Режим работы  для дневного времени
 
-	volatile uint16_t	Night_Bright;		//Яркость по умолчанию для ночьного времени
-	//volatile char			Night_Mode;			//Режим работы  для ночьного времени	
-	
+	volatile uint16_t	Night_Bright;		//Яркость по умолчанию для ночьного времени	
 }Channel_struct;
 
 typedef struct
@@ -124,13 +121,6 @@ typedef struct
 {
 	MovSensChannel_struct 		Channel[Mov_Sens_Cnt];
 }MovSens_struct;
-
-//typedef struct
-//{
-//	volatile char		Fartuk;					//Статус работы освещения фартука (0 - выкл., 1 - вкл.)
-//	volatile char		Floor;
-//	volatile char		Cabinet;
-//}Light_Status_struct;
 
 typedef struct
 {

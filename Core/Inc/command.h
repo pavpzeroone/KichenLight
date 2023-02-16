@@ -4,9 +4,9 @@
 #define Comm_h
 
 typedef struct 
-{ char 	Number;
-	char 	Key;			//Ключь на исполнение команды ( 1 / 0 )
-	int		Value;
+{ char 	Number;		//Номер команды
+	char 	Key;			//Ключь на исполнения команды ( k_0, k_1, ... )
+	int		Value;		//Переданое значение (цифра)
 }Command_struct;
 
 typedef struct 
@@ -14,7 +14,7 @@ typedef struct
 	int		Value;		//Значение яркости (0 - 1000)
 }ManualLed_struct;
 
-typedef struct 
+typedef struct 		//Для установки времени
 { volatile uint16_t Year;
 	volatile uint16_t Month;
 	volatile uint16_t Day;
@@ -44,8 +44,8 @@ extern const uint8_t	NhexList_dot;
 extern const uint8_t	NhexList_2dot;
 extern const uint8_t	NhexList_0;
 
-extern const uint8_t	chr_0A;
-extern const uint8_t	chr_0D;
+//extern const uint8_t	chr_0A;
+//extern const uint8_t	chr_0D;
 
 //Имена команд
 enum m_
@@ -68,33 +68,6 @@ enum m_
 	m_VSOLAR_SHOW	
 };
 
-
-#define m_H			 1
-//#define m_Q			 2
-#define m_1WIRE_DETECT			 33
-#define m_1WIRE_SHOW_COUNT			 44
-#define m_1WIRE_SHOW_ID			 55
-#define m_1WIRE_WORK			 66
-#define m_BEAN_SEND			 77
-#define m_BEAN_SHOW			 88
-#define m_BEAN_TEST_SIGNAL			 99
-#define m_CAN_FILTER_SET			 100
-#define m_CAN_SEND			 11
-#define m_CAN_SHOW			 112
-#define m_CAN_TEST_SIGNAL			 130
-#define m_CONNECT			 14
-#define m_DS18B20_REQUEST			 115
-#define m_DS18B20_SHOW_TEMP			 16
-#define m_HEATER1			 17
-#define m_HEATER2			 18
-#define m_HEATER3			 19
-#define m_HEATER4			 20
-#define m_LC_DRL_DEMO			 21
-#define m_LC_DRL_LED			 22
-#define m_LCD_TEMP_SHOW			 23
-//#define m_RELAY			 24
-#define m_RESET			 25
-
 //Имена ключей команд
 #define k_0			 			1
 #define k_1			 			2
@@ -102,7 +75,6 @@ enum m_
 #define k_ENABLE			4
 #define k_OFF			 		5
 #define k_ON			 		6
-//#define k_GO					254
 #define k_END_OF_MSG	255
 
 //Имена ответов
@@ -123,10 +95,6 @@ enum m_
 extern unsigned int	Comm_Task;			//Переменная содержащая биты разрешения работы задачь
 extern ManualLed_struct ManualLedSw;
 extern ManualTime_struct ManualTime;
-#define t_USART_Can_Show			(uint32_t) 1<<20
-#define	t_CAN_Test_Signal			(uint32_t) 1<<29
-
-#define t_BEAN_Test_Signal		(uint32_t) 1<<28
 
 #define t_Vbat_Show						0b10000000	//(uint32_t) 1<<3
 #define t_Vsolar_Show					0b01000000	//(uint32_t) 1<<4
@@ -135,12 +103,10 @@ extern ManualTime_struct ManualTime;
 #define t_LuxData_Show				0b00001000	//(uint32_t) 1<<6
 #define t_Debug								0b00000001
 
-volatile uint8_t const *get_StrFromList( uint8_t const* List, char N );
-uint8_t get_LenListStr( volatile uint8_t const* Str );
-//void Str_From_List(const uint8_t *Str, uint8_t *Len, const uint8_t *Comm_List, char Comm_N);
-void Text_From_List( uint8_t *Text, uint8_t *Len, const uint8_t *Comm_Str, char Comm_N );
 extern uint8_t Command_Write(uint8_t Number, uint8_t Key, uint16_t Value);
 void Command_Exec(void);
+volatile uint8_t const *get_StrFromList( uint8_t const* List, char N );
+uint8_t get_LenListStr( volatile uint8_t const* Str );
 
 uint8_t Send_uint16(uint16_t Digit);
 uint8_t Send_BitsByte(uint8_t Digit);
