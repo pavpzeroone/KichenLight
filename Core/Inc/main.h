@@ -57,9 +57,9 @@ extern "C" {
 #define Charge_Time									5400000//Время работы зарядки батареи ( 1,5 часа = 90 мин *60 сек = 5400 сек )
 #endif
 
-#define vBat_Low			2749					//(3.4V)Напряжение батареи ниже которого включается режим зарядки
+#define vBat_Low			2835					//(3.5V)Напряжение батареи ниже которого включается режим зарядки
 #define vBat_Norm			3030					//3.75V = 3032
-#define vBat_High			3395					//(4.2V)
+#define vBat_High			3320					//(4.1V)
 
 #define Bright_Day			650					//Яркость освещения для дня
 #define Bright_Night		150					//Яркость освещения для ночи
@@ -71,7 +71,7 @@ extern "C" {
 #define Lux_Data_Period							600000	//Время между занесениями в массив данных значения освещенности (600 000 = 10 мин)
 #define Lux_Data_Len								500			//Количество элементов массива сбора освещенности
 
-#define Time_correction							-5			//Корректировка времени в милисекундах на секунду
+#define Time_correction							-6			//Корректировка времени в милисекундах на секунду (-5,635ms)
 //extern Uart_struct	Uart;
 
 typedef struct
@@ -135,8 +135,7 @@ typedef struct
 #define pc_Fartuk							0b00000001	//1<<0
 #define pc_Floor							0b00000010	//1<<1
 #define	pc_Cabinet						0b00000100	//1<<2
-#define pc_Battery						0b10000000	//1<<7
-
+#define pc_ChargeBattery			0b10000000	//1<<7
 
 /* USER CODE END ET */
 

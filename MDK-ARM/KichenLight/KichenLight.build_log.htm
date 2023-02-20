@@ -27,39 +27,11 @@ Project File Date:  01/24/2023
 <h2>Output:</h2>
 *** Using Compiler 'V6.19', folder: 'C:\Keil_v5\ARM\ARMCLANG\Bin'
 Build target 'KichenLight'
-compiling command.c...
-../Core/Src/command.c(382): warning: passing 'const volatile uint8_t *' (aka 'const volatile unsigned char *') to parameter of type 'const uint8_t *' (aka 'const unsigned char *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
-        UART_Send_Str( S, get_LenListStr( S ) );                                                                                                
-                       ^
-../Core/Inc\uart.h(63): note: passing argument to parameter 'Str' here
-uint8_t UART_Send_Str(uint8_t const *Str, uint8_t Size);
-                                     ^
-../Core/Src/command.c(385): warning: passing 'const volatile uint8_t *' (aka 'const volatile unsigned char *') to parameter of type 'const uint8_t *' (aka 'const unsigned char *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
-        UART_Send_Str( S, get_LenListStr( S ) );                                                                                                
-                       ^
-../Core/Inc\uart.h(63): note: passing argument to parameter 'Str' here
-uint8_t UART_Send_Str(uint8_t const *Str, uint8_t Size);
-                                     ^
-../Core/Src/command.c(394): warning: passing 'const volatile uint8_t *' (aka 'const volatile unsigned char *') to parameter of type 'const uint8_t *' (aka 'const unsigned char *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
-        UART_Send_Str( S, 5 );
-                       ^
-../Core/Inc\uart.h(63): note: passing argument to parameter 'Str' here
-uint8_t UART_Send_Str(uint8_t const *Str, uint8_t Size);
-                                     ^
-../Core/Src/command.c(404): warning: passing 'const volatile uint8_t *' (aka 'const volatile unsigned char *') to parameter of type 'const uint8_t *' (aka 'const unsigned char *') discards qualifiers [-Wincompatible-pointer-types-discards-qualifiers]
-        UART_Send_Str( S, 7 );
-                       ^
-../Core/Inc\uart.h(63): note: passing argument to parameter 'Str' here
-uint8_t UART_Send_Str(uint8_t const *Str, uint8_t Size);
-                                     ^
-4 warnings generated.
 compiling main.c...
-compiling stm32f1xx_it.c...
-compiling stm32f1xx_hal_msp.c...
 linking...
 Program Size: Code=17784 RO-data=560 RW-data=32 ZI-data=3552  
 FromELF: creating hex file...
-".\KichenLight\KichenLight.axf" - 0 Error(s), 4 Warning(s).
+".\KichenLight\KichenLight.axf" - 0 Error(s), 0 Warning(s).
 
 <h2>Software Packages used:</h2>
 

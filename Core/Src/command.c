@@ -442,7 +442,7 @@ uint8_t LuxData_Show(uint16_t* Lux, uint16_t len, uint16_t pos)
 	{
 		if( Send_uint16( Lux[i] ) == 1 ) return 1;
 		if( UART_Send_Chr(&Hex_List[NhexChar_spc]) == 1 )return 1;
-		if( i == 0 ) i = len-1;
+		if( i == 0 ) i = len-1; else i--;
 		if( i == pos ) i = UINT16_MAX;
 	}
 	//Реинициализация индекса, финализация вывода

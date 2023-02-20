@@ -63,7 +63,7 @@ UART_HandleTypeDef huart3;
 UART_HandleTypeDef *const Used_uart = &huart3;		//Выбор используемого UARTa
 
 volatile uint32_t		ADC_Delay = 1000,
-										Charger_Delay,
+										Charger_LifeTime,
 										LuxIntegry_Period = Lux_Data_Period;
 uint16_t	Vbat[4] = { vBat_Norm, vBat_Norm, vBat_Norm, 0 },
 					Vlsens[3];
@@ -323,15 +323,15 @@ int main(void)
 			
 			if( Vbat[0] < vBat_Low )
 			{	//Включаем режим заряда батареии
-				Power.Consumers |= pc_Battery;							//Включаем флаг зарядка батареи
-				Charger_Delay = Charge_Time;
+				Power.Consumers |= pc_ChargeBattery;							//Включаем флаг зарядка батареи
+				Charger_LifeTime = Charge_Time;
 			}
 			
-			if( Charger_Delay == 0 )
+			if( Charger_LifeTime == 0 )
 			{ //Выключаем режим заряда батареии
-				Power.Consumers &= (uint8_t) ~pc_Battery;	//Выключаем флаг зарядка батареи
+				Power.Consumers &= (uint8_t) ~pc_ChargeBattery;	//Выключаем флаг зарядка батареи
 			}
-			else if( Vbat[0] >= vBat_High ) Charger_Delay = 0;	//Если батарея заряжена ускоряем окончание зарядки
+			else if( Vbat[0] >= vBat_High ) Charger_LifeTime = 0;	//Если батарея заряжена ускоряем окончание зарядки
 		} // 	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	- -	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-	-
 		
 		//Обработчик данных с датчика освещения
@@ -937,7 +937,7 @@ void TimingDelay_Decrement(void)		//Обработчик таймеров каж
 	for(i=0;i<Mov_Sens_Cnt;i++) { if( MovSens.Channel[i].LifeTime ) MovSens.Channel[i].LifeTime--; }
 	if( ADC_Delay ) ADC_Delay--;
 	if( Power.ChangeDelay ) Power.ChangeDelay--;
-	if( Charger_Delay ) Charger_Delay--;
+	if( Charger_LifeTime ) Charger_LifeTime--;
 	if( LuxIntegry_Period ) LuxIntegry_Period--;
 	if( Time.Delay ) Time.Delay--; else { Time.Delay = 1000 + Time_correction; Time.Tik = 1; }
 	
