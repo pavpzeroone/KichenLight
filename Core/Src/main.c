@@ -154,9 +154,9 @@ int main(void)
 		Led.Channel[i].Bright = 0;
 		Led.Channel[i].Target_Bright = 0;
 		Led.Channel[i].Step = 10;
-		Led.Channel[i].Step_Delay = 20;
-		Led.Channel[i].Day_Bright = Bright_Day;
-		Led.Channel[i].Night_Bright = Bright_Night;
+		Led.Channel[i].Step_Delay = 25;
+		//Led.Channel[i].Day_Bright = Fartuk_Bright_Day;
+		//Led.Channel[i].Night_Bright = Fartuk_Bright_Night;
 		Led.Channel[i].Delay = 0;
 		Set_Led_Bright(i, Led.Channel[i].Bright);
 	}	
@@ -202,15 +202,15 @@ int main(void)
 			if( LuxData_Show(LuxData.Data, Lux_Data_Len, LuxData.Pos) == 0 ) Comm_Task &= (uint32_t) ~t_LuxData_Show;			//Выключаем разовай вывод освещенности
 		
 		if( Comm_Task & t_Time_Show )
-		{ Comm_Task &= (uint32_t) ~t_Time_Show;			//Выключаем разовай вывод времени
+		{ Comm_Task &= (uint32_t) ~t_Time_Show;			//Выключаем разовый вывод времени
 			Time_Show(Time.Year, Time.Month, Time.Day, Time.Hour, Time.Minute, Time.Second);
 		}
 		
 		if( Comm_Task & t_Time_Set )
-		{ Comm_Task &= (uint32_t) ~t_Time_Set;			//Выключаем разовай вывод времени
+		{ Comm_Task &= (uint32_t) ~t_Time_Set;			//Выключаем разовую установку времени
 			//if( isValid_DataTime ( ManualTime.Year
 			Time_Set(ManualTime.Year, ManualTime.Month, ManualTime.Day, ManualTime.Hour, ManualTime.Minute, ManualTime.Second);
-			Comm_Task |= t_Time_Show;													//Включаем разовый показ времени
+			Comm_Task |= t_Time_Show;									//Включаем разовый показ времени
 		}
 		
 		//Обработчик изменения яркости Led
@@ -371,12 +371,13 @@ int main(void)
 				break;				
 			}
 			case 1:		//Day Mode
-			{	if((Power.Consumers & pc_Fartuk) == 0 )			//Если фартук выключен
+			{	//Фартук = - - -
+				if((Power.Consumers & pc_Fartuk) == 0 )			//Если фартук выключен
 				{	//Если сработали оба датчика движения - включаем свет на фартуке
 					if((MovSens.Channel[0].Detect == 1) && (MovSens.Channel[1].Detect == 1)) 
 					{	Power.Consumers |= pc_Fartuk;							//Включаем флаг фартук
-						Led.Channel[0].Target_Bright = Led.Channel[0].Day_Bright;
-						Led.Channel[1].Target_Bright = Led.Channel[1].Day_Bright;		
+						Led.Channel[0].Target_Bright = Fartuk_Bright_Day;
+						Led.Channel[1].Target_Bright = Fartuk_Bright_Day;		
 						if( Power.Status == 0 ) Led.Channel[0].Delay = Relay_ON_Delay;	
 						else										Led.Channel[0].Delay = 0;
 						Led.Channel[1].Delay = Led.Channel[0].Delay;
@@ -390,23 +391,50 @@ int main(void)
 						Power.Consumers &= (uint8_t) ~pc_Fartuk;	//Выключаем флаг фартук
 					}
 				}
+				//Подсветка пола = - - -
+				if((Power.Consumers & pc_Floor) == 0 )			//Если подсветка пола выключена
+				{	//Если сработали оба датчика движения - включаем свет подсветки пола
+					if((MovSens.Channel[0].Detect == 1) && (MovSens.Channel[1].Detect == 1)) 
+					{	Power.Consumers |= pc_Floor;						//Включаем флаг подсветки пола
+						Led.Channel[2].Target_Bright = Floor_Bright_Day;
+						Led.Channel[3].Target_Bright = Floor_Bright_Day;		
+						if( Power.Status == 0 ) Led.Channel[2].Delay = Relay_ON_Delay;	
+						else										Led.Channel[2].Delay = 0;
+						Led.Channel[3].Delay = Led.Channel[2].Delay;
+					}
+				}
+				else	//Поддержание работы подсветки пола
+				{ if((MovSens.Channel[0].Detect == 0) && (MovSens.Channel[1].Detect == 0)) 
+					{ //Начинаем выключение подсветки пола
+						Led.Channel[2].Target_Bright = 0;
+						Led.Channel[3].Target_Bright = 0;	
+						Led.Channel[2].Delay = Floor_Off_Delay;
+						Led.Channel[3].Delay = Floor_Off_Delay;
+						Power.Consumers &= (uint8_t) ~pc_Floor;	//Выключаем флаг подсветки пола
+					}
+				}
 				break;
 			}
 			case 2:		//Переход в Night Mode
 			{ if( Power.Consumers & pc_Fartuk )			//Если фартук включен				
-				{ Led.Channel[0].Target_Bright = Led.Channel[0].Night_Bright;
-					Led.Channel[1].Target_Bright = Led.Channel[1].Night_Bright;		
+				{ Led.Channel[0].Target_Bright = Fartuk_Bright_Night;
+					Led.Channel[1].Target_Bright = Fartuk_Bright_Night;		
+				}
+				if( Power.Consumers & pc_Floor )			//Если подсветка пола включена				
+				{ Led.Channel[2].Target_Bright = Floor_Bright_Night;
+					Led.Channel[3].Target_Bright = Floor_Bright_Night;		
 				}
 				Mode++;
 				break;
 			}			
 			case 3:		//Night Mode
-			{ if((Power.Consumers & pc_Fartuk) == 0 )			//Если фартук выключен				
+			{ //Фартук = - - -
+				if((Power.Consumers & pc_Fartuk) == 0 )			//Если фартук выключен				
 				{	//Если сработали оба датчика движения - включаем свет на фартуке
 					if((MovSens.Channel[0].Detect == 1) && (MovSens.Channel[1].Detect == 1)) 
 					{	Power.Consumers |= pc_Fartuk;							//Включаем флаг фартук
-						Led.Channel[0].Target_Bright = Led.Channel[0].Night_Bright;
-						Led.Channel[1].Target_Bright = Led.Channel[1].Night_Bright;		
+						Led.Channel[0].Target_Bright = Fartuk_Bright_Night;
+						Led.Channel[1].Target_Bright = Fartuk_Bright_Night;		
 						if( Power.Status == 0 ) Led.Channel[0].Delay = Relay_ON_Delay;	
 						else										Led.Channel[0].Delay = 0;						
 						Led.Channel[1].Delay = Led.Channel[0].Delay;
@@ -419,14 +447,41 @@ int main(void)
 						Led.Channel[1].Target_Bright = 0;											
 						Power.Consumers &= (uint8_t) ~pc_Fartuk;	//Выключаем флаг фартук
 					}
-				}							
+				}			
+				//Подсветка пола = - - -
+				if((Power.Consumers & pc_Floor) == 0 )			//Если подсветка пола выключена
+				{	//Если сработали оба датчика движения - включаем свет подсветки пола
+					if((MovSens.Channel[0].Detect == 1) && (MovSens.Channel[1].Detect == 1)) 
+					{	Power.Consumers |= pc_Floor;						//Включаем флаг подсветки пола
+						Led.Channel[2].Target_Bright = Floor_Bright_Night;
+						Led.Channel[3].Target_Bright = Floor_Bright_Night;		
+						if( Power.Status == 0 ) Led.Channel[2].Delay = Relay_ON_Delay;	
+						else										Led.Channel[2].Delay = 0;
+						Led.Channel[3].Delay = Led.Channel[2].Delay;
+					}
+				}
+				else	//Поддержание работы подсветки пола
+				{ if((MovSens.Channel[0].Detect == 0) && (MovSens.Channel[1].Detect == 0)) 
+					{ //Начинаем выключение подсветки пола
+						Led.Channel[2].Target_Bright = 0;
+						Led.Channel[3].Target_Bright = 0;	
+						Led.Channel[2].Delay = Floor_Off_Delay;
+						Led.Channel[3].Delay = Floor_Off_Delay;
+						Power.Consumers &= (uint8_t) ~pc_Floor;	//Выключаем флаг подсветки пола
+					}
+				}
 				break;
 			}
 			case 4:		//Переход в Day Mode
 			{ if( Power.Consumers & pc_Fartuk )			//Если фартук включен				
 				{
-					Led.Channel[0].Target_Bright = Led.Channel[0].Day_Bright;
-					Led.Channel[1].Target_Bright = Led.Channel[1].Day_Bright;		
+					Led.Channel[0].Target_Bright = Fartuk_Bright_Day;
+					Led.Channel[1].Target_Bright = Fartuk_Bright_Day;		
+				}
+				if( Power.Consumers & pc_Floor )			//Если подсветка пола включена				
+				{
+					Led.Channel[2].Target_Bright = Floor_Bright_Day;
+					Led.Channel[3].Target_Bright = Floor_Bright_Day;		
 				}
 				Mode = 1;
 				break;
@@ -438,6 +493,13 @@ int main(void)
 						Led.Channel[0].Target_Bright = 0;
 						Led.Channel[1].Target_Bright = 0;											
 						Power.Consumers &= (uint8_t) ~pc_Fartuk;	//Выключаем флаг фартук
+					}
+				if((Power.Consumers & pc_Floor) == 1 )			//Если подсветка пола включена				
+					if((MovSens.Channel[0].Detect == 0) && (MovSens.Channel[1].Detect == 0)) 
+					{	//Начинаем выключение подсветки пола
+						Led.Channel[2].Target_Bright = 0;
+						Led.Channel[3].Target_Bright = 0;											
+						Power.Consumers &= (uint8_t) ~pc_Floor;	//Выключаем флаг подсветки пола
 					}
 				break;
 			}
@@ -888,8 +950,11 @@ void Clock_Handler(void)
 						Time.Year++;
 					}
 				}
-				
+				//Корректировка времени в сутки в +
+				Time.Second += Time_correction_sec_in_day;
 			}
+			//Корректировка времени в час в +
+			Time.Second += Time_correction_sec_in_hour;
 		}
 	}
 }
@@ -939,7 +1004,7 @@ void TimingDelay_Decrement(void)		//Обработчик таймеров каж
 	if( Power.ChangeDelay ) Power.ChangeDelay--;
 	if( Charger_LifeTime ) Charger_LifeTime--;
 	if( LuxIntegry_Period ) LuxIntegry_Period--;
-	if( Time.Delay ) Time.Delay--; else { Time.Delay = 1000 + Time_correction; Time.Tik = 1; }
+	if( Time.Delay ) Time.Delay--; else { Time.Delay = 1000 + Time_correction_ms_in_sec; Time.Tik = 1; }
 	
 	#ifdef DBG_USART
 		if( TimingDelay_DBG_Temp ) TimingDelay_DBG_Temp--;

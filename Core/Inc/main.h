@@ -61,17 +61,35 @@ extern "C" {
 #define vBat_Norm			3230					//4.00//3.75V = 3032
 #define vBat_High			3370					//(4.2V)
 
-#define Bright_Day			650					//Яркость освещения для дня
-#define Bright_Night		150					//Яркость освещения для ночи
+//Яркость фартука
+#define Fartuk_Bright_Day			650		//Яркость освещения для дня
+#define Fartuk_Bright_Night		150		//Яркость освещения для ночи
+
+//Яркость посветки пола
+#define Floor_Bright_Day			700		//Яркость освещения для дня
+#define Floor_Bright_Night		300		//Яркость освещения для ночи
+#define Floor_Off_Delay				5000	//Задержка отключения (для отключения подсветки с паузой после выключения фартука < Delay_Normal_Power_OFF)
 
 #define vLightSens_Night						2000	//Напряжение на датчике освещения ниже которого наступет ночь
-#define vLightSens_Day							2300	//Напряжение на датчике освещения выше которого наступет день
+#define vLightSens_Day							2400	//Напряжение на датчике освещения выше которого наступет день
 #define vLightSens_Sun							3750	//Напряжение на датчике освещения выше которого наступет солнечный день (нет необходмости в освещении)
 
 #define Lux_Data_Period							600000	//Время между занесениями в массив данных значения освещенности (600 000 = 10 мин)
 #define Lux_Data_Len								500			//Количество элементов массива сбора освещенности
 
-#define Time_correction							-6			//Корректировка времени в милисекундах на секунду (-5,635ms)
+//Коррекция времени при появлении разницы между реальным времением и времением микроконтроллера
+#define Time_sec_Real_minus_MCU     -487		//Разница в секундах между реальным и временем MCU за сутки
+#define Conv_sec_in_day_to_ms(x)    x*1000/24/60/60
+#define Conv_ms_to_sec_in_day(x)    x*24*60*60/1000
+#define Time_correction_ms_in_sec   (Time_sec_Real_minus_MCU > 0 ? -Conv_sec_in_day_to_ms(Time_sec_Real_minus_MCU) : (1-Conv_sec_in_day_to_ms(Time_sec_Real_minus_MCU)))
+#define Time_correction_sec_in_hour (Time_sec_Real_minus_MCU + Conv_ms_to_sec_in_day(Time_correction_ms_in_sec))/24
+#define Time_correction_sec_in_day  Time_sec_Real_minus_MCU + Conv_ms_to_sec_in_day(Time_correction_ms_in_sec) - Time_correction_sec_in_hour*24
+
+//#define	sec_in_day									487			//ЧасыMCU-ЧасыРеал за сутки
+//#define correct_ms									sec_in_day*1000/24/60/60
+//#define	round_correct_ms						(correct_ms >= 0 ? (-sec_in_day-1) : (sec_in_day))
+//#define Time_correction_ms					round_correct_ms//-6			//Корректировка времени в милисекундах на секунду (-5,635ms)
+//#define Time_correction_s						(Time_correction_ms*60*60*24 - sec_in_day *1000)/1000				//Добавка времени в секундах на сутки ( > 0 )
 //extern Uart_struct	Uart;
 
 typedef struct
@@ -101,9 +119,8 @@ typedef struct
 	volatile int			Step;						//Nнкремент(декремент) яркости за шаг
 	volatile uint32_t	Step_Delay;			//Задержка до следуюшего шага изменения яркости
 	
-	volatile uint16_t	Day_Bright;			//Яркость по умолчанию для дневного времени
-
-	volatile uint16_t	Night_Bright;		//Яркость по умолчанию для ночьного времени	
+//	volatile uint16_t	Day_Bright;			//Яркость по умолчанию для дневного времени
+//	volatile uint16_t	Night_Bright;		//Яркость по умолчанию для ночьного времени	
 }Channel_struct;
 
 typedef struct

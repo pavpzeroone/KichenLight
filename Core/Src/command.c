@@ -215,8 +215,8 @@ void Command_Exec(void)
 			{	HAL_NVIC_SystemReset();	break; }
 			
 			case m_RELAY:	//Команда включения / выключения реле питания-------------
-			{ if((Command.Key==k_0)&&(Command.Key==k_OFF))	{ Relay_OFF; Send_Answer_from_List(m_RELAY, a_OFF); }
-				else 																					{ Relay_ON;	 Send_Answer_from_List(m_RELAY, a_ON);	}
+			{ if((Command.Key==k_0)||(Command.Key==k_OFF))		{ Relay_OFF; Send_Answer_from_List(m_RELAY, a_OFF); }
+				else if((Command.Key==k_1)||(Command.Key==k_ON)){ Relay_ON;	 Send_Answer_from_List(m_RELAY, a_ON);	}
 			break;}//---------------------------------------------------------------			
 			
 			case m_DEBUG:	//Команда вывода переменных для Debug
@@ -233,18 +233,15 @@ void Command_Exec(void)
 						Send_Answer_from_List(m_DEBUG, a_OFF);			//Формирование ответа
 					break;}
 				}											
-				break;
-			}
+			break;}
 			
 			case m_TIME_SHOW:	//Команда вывода времени
 			{ Comm_Task |= t_Time_Show;													//Включаем разовый показ времени
-				break;
-			}
+			break;}
 			
 			case m_TIME_SET:	//Команда установки даты и времени YYYY.MM.DD hh:mm:ss
 			{ Comm_Task |= t_Time_Set;													//Инициализируем установку даты и времени
-				break;
-			}
+			break;}
 			
 			case m_VBAT_SHOW:	//Команда включения / выключения вывода Vbat ----
 			{ switch( Command.Key )
