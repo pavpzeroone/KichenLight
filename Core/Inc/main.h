@@ -66,8 +66,8 @@ extern "C" {
 #define Fartuk_Bright_Night		150		//Яркость освещения для ночи
 
 //Яркость посветки пола
-#define Floor_Bright_Day			700		//Яркость освещения для дня
-#define Floor_Bright_Night		300		//Яркость освещения для ночи
+#define Floor_Bright_Day			600		//Яркость освещения для дня
+#define Floor_Bright_Night		250		//Яркость освещения для ночи
 #define Floor_Off_Delay				5000	//Задержка отключения (для отключения подсветки с паузой после выключения фартука < Delay_Normal_Power_OFF)
 
 #define vLightSens_Night						2000	//Напряжение на датчике освещения ниже которого наступет ночь

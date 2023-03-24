@@ -59,5 +59,6 @@ typedef enum
 
 void UART_Rx_Handler(void);
 void UART_Tx_Handler(UART_HandleTypeDef *huart);
+uint8_t UART_TXbuf_Space_Check();
 uint8_t UART_Send_Chr(uint8_t const* Chr);
 uint8_t	UART_Send_Str(uint8_t const *Str, uint8_t Size);

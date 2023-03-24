@@ -47,11 +47,18 @@ void UART_Tx_Handler(UART_HandleTypeDef *huart)
 	}
 }
 
+//Проверяет и возвращает количество доступных для записи ячеек буфера отправки
+uint8_t UART_TXbuf_Space_Check()
+{	if( Uart.TX_Buf.Write_Pos == Uart.TX_Buf.Read_Pos) return TX_Buf_Len;
+	if( Uart.TX_Buf.Write_Pos < Uart.TX_Buf.Read_Pos) return ( Uart.TX_Buf.Read_Pos - Uart.TX_Buf.Write_Pos );
+	if( Uart.TX_Buf.Write_Pos > Uart.TX_Buf.Read_Pos) return ( TX_Buf_Len - Uart.TX_Buf.Write_Pos + Uart.TX_Buf.Read_Pos );
+return 0;}
+
 //Отправка одного символа в буфер передачи UART (Возврщает 1 при переполнении буфера)
 uint8_t UART_Send_Chr(const uint8_t *Chr)
-{ Uart.TX_Buf.Text[Uart.TX_Buf.Write_Pos++] = *Chr;
+{ if( Uart.TX_Buf.Write_Pos == Uart.TX_Buf.Read_Pos ) return 1;								//Возвращаем флаг переполнения буфера
+	Uart.TX_Buf.Text[Uart.TX_Buf.Write_Pos++] = *Chr;
 	if( Uart.TX_Buf.Write_Pos == TX_Buf_Len ) Uart.TX_Buf.Write_Pos = 0;
-	if( Uart.TX_Buf.Write_Pos == Uart.TX_Buf.Read_Pos ) return 1;								//Возвращаем флаг переполнения буфера
 	return 0;																																		//Возвращаем флаг нормального завершения
 }
 

@@ -352,17 +352,21 @@ uint8_t Send_uint16(uint16_t Digit)
 	uint8_t d2 = (uint16_t) Digit/100;	Digit -= d2*100;
 	uint8_t d3 = (uint16_t) Digit/10;	Digit -= d3*10;
 	
-	if(d0)							{	if( UART_Send_Chr(&Hex_List[NhexChar_0+2*d0]) )return 1;	}			//1-й разряд
-	if(d0||d1) 					{	if( UART_Send_Chr(&Hex_List[NhexChar_0+2*d1]) )return 1;	}			//2-й
-	if(d0||d1||d2) 			{	if( UART_Send_Chr(&Hex_List[NhexChar_0+2*d2]) )return 1;	}			//3-й
-	if(d0||d1||d2||d3) 	{	if( UART_Send_Chr(&Hex_List[NhexChar_0+2*d3]) )return 1;	}			//4-й
-												if( UART_Send_Chr(&Hex_List[NhexChar_0+2*Digit]) )return 1;		//5-й последний
+	uint8_t n = (d0 ? 1:0) + (d0||d1 ? 1:0) + (d0||d1||d2 ? 1:0) + (d0||d1||d2||d3 ? 1:0) + (d0||d1||d2||d3||Digit ? 1:0);
+	if( UART_TXbuf_Space_Check() < n ) return 1;	//Буфер переполнен
+	
+	if(d0)							{	UART_Send_Chr(&Hex_List[NhexChar_0+2*d0]);	}			//1-й разряд
+	if(d0||d1) 					{	UART_Send_Chr(&Hex_List[NhexChar_0+2*d1]);	}			//2-й
+	if(d0||d1||d2) 			{	UART_Send_Chr(&Hex_List[NhexChar_0+2*d2]);	}			//3-й
+	if(d0||d1||d2||d3) 	{	UART_Send_Chr(&Hex_List[NhexChar_0+2*d3]);	}			//4-й
+												UART_Send_Chr(&Hex_List[NhexChar_0+2*Digit]);			//5-й последний
 	return 0;
 }
 
 //Отправка в UART 5х-значного числа uint16_t (Возврщает 1 при переполнении буфера)
 uint8_t Send_BitsByte(uint8_t Digit)
-{	uint8_t d = 0b10000000;
+{	if( UART_TXbuf_Space_Check() < 8 ) return 1;	//Буфер переполнен
+	uint8_t d = 0b10000000;
 	while ( d )
 	{ if( Digit & d ) { if( UART_Send_Chr(&Hex_List[ NhexChar_0+2 ]) )return 1;	}		//1
 		else						{ if( UART_Send_Chr(&Hex_List[ NhexChar_0 ]) )return 1;	}			//0
@@ -430,15 +434,24 @@ void Time_Show(int16_t Year, uint16_t Month, uint16_t Day, uint16_t Hour, uint16
 
 uint8_t LuxData_Show(uint16_t* Lux, uint16_t len, uint16_t pos)
 { static uint16_t i = UINT16_MAX;				//Текущий индекс в массиве для отправки
+	static uint8_t step = 0;
 	//Запуск индекса
 	if( i == UINT16_MAX ) i = pos;
 	
 	if( Uart.TX_Busy ) return 1;
 	
 	while(( Lux[i] > 0 )&&( i != UINT16_MAX ))
-	{
-		if( Send_uint16( Lux[i] ) == 1 ) return 1;
-		if( UART_Send_Chr(&Hex_List[NhexChar_spc]) == 1 )return 1;
+	{	switch(step)
+		{
+			case 0:
+			{	if( Send_uint16( Lux[i] ) == 1 ) return 1;
+				step++;
+			}
+			case 1:
+			{	if( UART_Send_Chr(&Hex_List[NhexChar_spc]) == 1 )return 1;
+				step = 0;
+			}
+		}
 		if( i == 0 ) i = len-1; else i--;
 		if( i == pos ) i = UINT16_MAX;
 	}

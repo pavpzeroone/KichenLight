@@ -487,14 +487,14 @@ int main(void)
 				break;
 			}	
 			case 5:		//Sun mode
-			{ if((Power.Consumers & pc_Fartuk) == 1 )			//Если фартук включен				
+			{ if( Power.Consumers & pc_Fartuk ) 					//Если фартук включен				
 					if((MovSens.Channel[0].Detect == 0) && (MovSens.Channel[1].Detect == 0)) 
 					{	//Начинаем выключение фартука
 						Led.Channel[0].Target_Bright = 0;
 						Led.Channel[1].Target_Bright = 0;											
 						Power.Consumers &= (uint8_t) ~pc_Fartuk;	//Выключаем флаг фартук
 					}
-				if((Power.Consumers & pc_Floor) == 1 )			//Если подсветка пола включена				
+				if( Power.Consumers & pc_Floor )						//Если подсветка пола включена				
 					if((MovSens.Channel[0].Detect == 0) && (MovSens.Channel[1].Detect == 0)) 
 					{	//Начинаем выключение подсветки пола
 						Led.Channel[2].Target_Bright = 0;
