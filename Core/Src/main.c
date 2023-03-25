@@ -949,12 +949,12 @@ void Clock_Handler(void)
 						Time.Month = 1;
 						Time.Year++;
 					}
+					//Корректировка времени в сутки в +
+					Time.Second += Time_correction_sec_in_day;	
 				}
-				//Корректировка времени в сутки в +
-				Time.Second += Time_correction_sec_in_day;
-			}
-			//Корректировка времени в час в +
-			Time.Second += Time_correction_sec_in_hour;
+				//Корректировка времени в час в +
+				Time.Second += Time_correction_sec_in_hour;
+			}			
 		}
 	}
 }

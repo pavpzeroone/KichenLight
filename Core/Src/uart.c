@@ -56,8 +56,8 @@ return 0;}
 
 //Отправка одного символа в буфер передачи UART (Возврщает 1 при переполнении буфера)
 uint8_t UART_Send_Chr(const uint8_t *Chr)
-{ if( Uart.TX_Buf.Write_Pos == Uart.TX_Buf.Read_Pos ) return 1;								//Возвращаем флаг переполнения буфера
-	Uart.TX_Buf.Text[Uart.TX_Buf.Write_Pos++] = *Chr;
+{ Uart.TX_Buf.Text[Uart.TX_Buf.Write_Pos++] = *Chr;
+	if( Uart.TX_Buf.Write_Pos == Uart.TX_Buf.Read_Pos ) { Uart.TX_Buf.Write_Pos--; return 1; }	//Возвращаем флаг переполнения буфера
 	if( Uart.TX_Buf.Write_Pos == TX_Buf_Len ) Uart.TX_Buf.Write_Pos = 0;
 	return 0;																																		//Возвращаем флаг нормального завершения
 }
